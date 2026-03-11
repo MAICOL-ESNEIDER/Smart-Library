@@ -225,7 +225,7 @@ namespace SmartLibrary
                     case 1: Console.WriteLine("Simulación: crear préstamo (validaciones)."); break;
                     case 2: ShowListLoansMenu(); break;
                     case 3: Console.WriteLine("Simulación: ver detalle de préstamo."); break;
-                    case 4: Console.WriteLine("Simulación: registrar devolución."); break;
+                    case 4: RegisterReturn(); break;
                     case 5: Console.WriteLine("Simulación: eliminar préstamo (reglas sugeridas)."); break;
                     case 0: back = true; break;
                 }
@@ -260,6 +260,11 @@ namespace SmartLibrary
             }
         }
 
+        static void RegisterReturn()
+        {
+            Console.WriteLine("Simulación: registrar devolución (validar estado del préstamo).");
+        }
+
         // ===================== OTROS MENÚS =====================
         static void ShowSearchMenu() => Console.WriteLine("=== BÚSQUEDAS Y REPORTES ===\nFuncionalidad en desarrollo...");
         static void ShowDataMenu() => Console.WriteLine("=== GUARDAR / CARGAR DATOS ===\nFuncionalidad en desarrollo...");
@@ -279,6 +284,7 @@ namespace SmartLibrary
         }
     }
 }
+
 
 
 
