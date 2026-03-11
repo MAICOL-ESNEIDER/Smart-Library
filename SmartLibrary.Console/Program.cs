@@ -308,10 +308,10 @@ namespace SmartLibrary
 
 
 
-            // ===================== SALIDA =====================
+              // ===================== SALIDA =====================
         static bool ExitApplication()
         {
-            Console.Write("¿Guardar antes de salir? (S/N): ");
+            Console.Write("¿Desea guardar los datos antes de salir? (S/N): ");
             string? answer = Console.ReadLine();
 
             if (answer?.ToUpper() == "S")
@@ -319,12 +319,17 @@ namespace SmartLibrary
                 Console.WriteLine("[INFO] Guardando datos... (simulación)");
                 Console.WriteLine("[OK] Datos guardados correctamente.");
             }
+            else
+            {
+                Console.WriteLine("[INFO] No se guardaron cambios.");
+            }
 
-            Console.WriteLine("Saliendo del sistema...");
+            Console.WriteLine("[SYSTEM] Cerrando aplicación. ¡Hasta pronto!");
             return false;
         }
     }
 }
+
 
 
 
