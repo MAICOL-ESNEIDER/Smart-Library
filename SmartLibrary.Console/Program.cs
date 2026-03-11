@@ -64,9 +64,10 @@ namespace SmartLibrary
                 Console.WriteLine("2. Listar libros");
                 Console.WriteLine("3. Ver detalle de libro");
                 Console.WriteLine("4. Actualizar libro");
+                Console.WriteLine("5. Eliminar libro");
                 Console.WriteLine("0. Volver");
 
-                int option = ReadOption(0, 4);
+                int option = ReadOption(0, 5);
 
                 switch (option)
                 {
@@ -74,6 +75,7 @@ namespace SmartLibrary
                     case 2: ShowListBooksMenu(); break;
                     case 3: Console.WriteLine("Simulación: ver detalle de libro."); break;
                     case 4: UpdateBookMenu(); break;
+                    case 5: DeleteBook(); break;
                     case 0: back = true; break;
                 }
 
@@ -133,6 +135,11 @@ namespace SmartLibrary
             }
         }
 
+        static void DeleteBook()
+        {
+            Console.WriteLine("Simulación: eliminar libro (validar que no esté prestado).");
+        }
+
         // Los demás menús siguen igual
         static void ShowUsersMenu() => Console.WriteLine("=== MENÚ USUARIOS ===\nFuncionalidad en desarrollo...");
         static void ShowLoansMenu() => Console.WriteLine("=== MENÚ PRÉSTAMOS ===\nFuncionalidad en desarrollo...");
@@ -154,3 +161,4 @@ namespace SmartLibrary
         }
     }
 }
+
