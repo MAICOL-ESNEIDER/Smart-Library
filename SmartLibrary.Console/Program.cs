@@ -299,11 +299,11 @@ namespace SmartLibrary
         {
             Console.WriteLine("Simulación: guardar datos en archivo.");
         }
-
         static void LoadData()
         {
             Console.WriteLine("Simulación: cargar datos desde archivo.");
         }
+
 
         // ===================== SALIDA =====================
         static bool ExitApplication()
