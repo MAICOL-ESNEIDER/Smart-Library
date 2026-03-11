@@ -294,15 +294,18 @@ namespace SmartLibrary
                 Console.WriteLine();
             }
         }
-     
-        static void SaveData()
+                static void SaveData()
         {
-            Console.WriteLine("Simulación: guardar datos en archivo.");
+            Console.WriteLine("[INFO] Guardando datos en archivo... (simulación)");
+            Console.WriteLine("[OK] Datos guardados correctamente.");
         }
+
         static void LoadData()
         {
-            Console.WriteLine("Simulación: cargar datos desde archivo.");
+            Console.WriteLine("[INFO] Cargando datos desde archivo... (simulación)");
+            Console.WriteLine("[OK] Datos cargados correctamente.");
         }
+
 
 
         // ===================== SALIDA =====================
