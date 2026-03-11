@@ -273,13 +273,13 @@ namespace SmartLibrary
                 Console.WriteLine();
             }
         }
-        // ===================== DATOS =====================
+        // ===================== PERSISTENCIA =====================
         static void ShowDataMenu()
         {
             bool back = false;
             while (!back)
             {
-                Console.WriteLine("=== GUARDAR / CARGAR DATOS ===");
+                Console.WriteLine("=== MENÚ PERSISTENCIA ===");
                 Console.WriteLine("1. Guardar datos");
                 Console.WriteLine("2. Cargar datos");
                 Console.WriteLine("0. Volver");
@@ -287,12 +287,22 @@ namespace SmartLibrary
                 int option = ReadOption(0, 2);
                 switch (option)
                 {
-                    case 1: Console.WriteLine("Simulación: guardar datos."); break;
-                    case 2: Console.WriteLine("Simulación: cargar datos."); break;
+                    case 1: SaveData(); break;
+                    case 2: LoadData(); break;
                     case 0: back = true; break;
                 }
                 Console.WriteLine();
             }
+        }
+
+        static void SaveData()
+        {
+            Console.WriteLine("Simulación: guardar datos en archivo.");
+        }
+
+        static void LoadData()
+        {
+            Console.WriteLine("Simulación: cargar datos desde archivo.");
         }
 
         // ===================== SALIDA =====================
@@ -311,3 +321,4 @@ namespace SmartLibrary
         }
     }
 }
+
