@@ -163,8 +163,34 @@ namespace SmartLibrary
                     case 1: Console.WriteLine("Simulación: registrar usuario."); break;
                     case 2: Console.WriteLine("Simulación: listar usuarios."); break;
                     case 3: Console.WriteLine("Simulación: ver detalle de usuario."); break;
-                    case 4: Console.WriteLine("Funcionalidad de actualización en desarrollo..."); break;
+                    case 4: UpdateUserMenu(); break;
                     case 5: Console.WriteLine("Simulación: eliminar usuario."); break;
+                    case 0: back = true; break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void UpdateUserMenu()
+        {
+            bool back = false;
+
+            while (!back)
+            {
+                Console.WriteLine("=== ACTUALIZAR USUARIO ===");
+                Console.WriteLine("1. Editar nombre");
+                Console.WriteLine("2. Editar contacto");
+                Console.WriteLine("3. Activar/Desactivar usuario");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1: Console.WriteLine("Simulación: editar nombre."); break;
+                    case 2: Console.WriteLine("Simulación: editar contacto."); break;
+                    case 3: Console.WriteLine("Simulación: activar/desactivar usuario."); break;
                     case 0: back = true; break;
                 }
 
@@ -192,4 +218,5 @@ namespace SmartLibrary
         }
     }
 }
+
 
