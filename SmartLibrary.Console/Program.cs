@@ -93,7 +93,7 @@ namespace SmartLibrary
                         break;
 
                     case 2:
-                        Console.WriteLine("Simulación: listar libros.");
+                        ShowListBooksMenu();
                         break;
 
                     case 3:
@@ -106,6 +106,43 @@ namespace SmartLibrary
 
                     case 5:
                         Console.WriteLine("Simulación: eliminar libro.");
+                        break;
+
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void ShowListBooksMenu()
+        {
+            bool back = false;
+
+            while (!back)
+            {
+                Console.WriteLine("=== LISTAR LIBROS ===");
+                Console.WriteLine("1. Listar todos");
+                Console.WriteLine("2. Listar disponibles");
+                Console.WriteLine("3. Listar prestados");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1:
+                        Console.WriteLine("Simulación: mostrar todos los libros.");
+                        break;
+
+                    case 2:
+                        Console.WriteLine("Simulación: mostrar libros disponibles.");
+                        break;
+
+                    case 3:
+                        Console.WriteLine("Simulación: mostrar libros prestados.");
                         break;
 
                     case 0:
