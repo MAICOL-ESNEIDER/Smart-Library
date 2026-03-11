@@ -53,6 +53,7 @@ namespace SmartLibrary
             }
         }
 
+        // ===================== LIBROS =====================
         static void ShowBooksMenu()
         {
             bool back = false;
@@ -140,8 +141,38 @@ namespace SmartLibrary
             Console.WriteLine("Simulación: eliminar libro (validar que no esté prestado).");
         }
 
-        // Los demás menús siguen igual
-        static void ShowUsersMenu() => Console.WriteLine("=== MENÚ USUARIOS ===\nFuncionalidad en desarrollo...");
+        // ===================== USUARIOS =====================
+        static void ShowUsersMenu()
+        {
+            bool back = false;
+
+            while (!back)
+            {
+                Console.WriteLine("=== MENÚ USUARIOS ===");
+                Console.WriteLine("1. Registrar usuario");
+                Console.WriteLine("2. Listar usuarios");
+                Console.WriteLine("3. Ver detalle de usuario");
+                Console.WriteLine("4. Actualizar usuario");
+                Console.WriteLine("5. Eliminar usuario");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 5);
+
+                switch (option)
+                {
+                    case 1: Console.WriteLine("Simulación: registrar usuario."); break;
+                    case 2: Console.WriteLine("Simulación: listar usuarios."); break;
+                    case 3: Console.WriteLine("Simulación: ver detalle de usuario."); break;
+                    case 4: Console.WriteLine("Funcionalidad de actualización en desarrollo..."); break;
+                    case 5: Console.WriteLine("Simulación: eliminar usuario."); break;
+                    case 0: back = true; break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        // ===================== OTROS MENÚS =====================
         static void ShowLoansMenu() => Console.WriteLine("=== MENÚ PRÉSTAMOS ===\nFuncionalidad en desarrollo...");
         static void ShowSearchMenu() => Console.WriteLine("=== BÚSQUEDAS Y REPORTES ===\nFuncionalidad en desarrollo...");
         static void ShowDataMenu() => Console.WriteLine("=== GUARDAR / CARGAR DATOS ===\nFuncionalidad en desarrollo...");
