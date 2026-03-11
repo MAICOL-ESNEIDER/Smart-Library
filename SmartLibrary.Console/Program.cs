@@ -294,7 +294,7 @@ namespace SmartLibrary
                 Console.WriteLine();
             }
         }
-
+     
         static void SaveData()
         {
             Console.WriteLine("Simulación: guardar datos en archivo.");
