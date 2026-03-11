@@ -15,29 +15,12 @@ namespace SmartLibrary
 
                 switch (option)
                 {
-                    case 1:
-                        ShowBooksMenu();
-                        break;
-
-                    case 2:
-                        ShowUsersMenu();
-                        break;
-
-                    case 3:
-                        ShowLoansMenu();
-                        break;
-
-                    case 4:
-                        ShowSearchMenu();
-                        break;
-
-                    case 5:
-                        ShowDataMenu();
-                        break;
-
-                    case 6:
-                        running = ExitApplication();
-                        break;
+                    case 1: ShowBooksMenu(); break;
+                    case 2: ShowUsersMenu(); break;
+                    case 3: ShowLoansMenu(); break;
+                    case 4: ShowSearchMenu(); break;
+                    case 5: ShowDataMenu(); break;
+                    case 6: running = ExitApplication(); break;
                 }
 
                 Console.WriteLine();
@@ -88,29 +71,12 @@ namespace SmartLibrary
 
                 switch (option)
                 {
-                    case 1:
-                        Console.WriteLine("Simulación: registrar libro.");
-                        break;
-
-                    case 2:
-                        ShowListBooksMenu();
-                        break;
-
-                    case 3:
-                        Console.WriteLine("Simulación: ver detalle de libro.");
-                        break;
-
-                    case 4:
-                        Console.WriteLine("Simulación: actualizar libro.");
-                        break;
-
-                    case 5:
-                        Console.WriteLine("Simulación: eliminar libro.");
-                        break;
-
-                    case 0:
-                        back = true;
-                        break;
+                    case 1: Console.WriteLine("Simulación: registrar libro."); break;
+                    case 2: ShowListBooksMenu(); break;
+                    case 3: Console.WriteLine("Simulación: ver detalle de libro."); break;
+                    case 4: UpdateBookMenu(); break;
+                    case 5: DeleteBook(); break;
+                    case 0: back = true; break;
                 }
 
                 Console.WriteLine();
@@ -133,25 +99,45 @@ namespace SmartLibrary
 
                 switch (option)
                 {
-                    case 1:
-                        Console.WriteLine("Simulación: mostrar todos los libros.");
-                        break;
-
-                    case 2:
-                        Console.WriteLine("Simulación: mostrar libros disponibles.");
-                        break;
-
-                    case 3:
-                        Console.WriteLine("Simulación: mostrar libros prestados.");
-                        break;
-
-                    case 0:
-                        back = true;
-                        break;
+                    case 1: Console.WriteLine("Simulación: mostrar todos los libros."); break;
+                    case 2: Console.WriteLine("Simulación: mostrar libros disponibles."); break;
+                    case 3: Console.WriteLine("Simulación: mostrar libros prestados."); break;
+                    case 0: back = true; break;
                 }
 
                 Console.WriteLine();
             }
+        }
+
+        static void UpdateBookMenu()
+        {
+            bool back = false;
+
+            while (!back)
+            {
+                Console.WriteLine("=== ACTUALIZAR LIBRO ===");
+                Console.WriteLine("1. Editar título");
+                Console.WriteLine("2. Editar autor");
+                Console.WriteLine("3. Editar año/categoría");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1: Console.WriteLine("Simulación: editar título."); break;
+                    case 2: Console.WriteLine("Simulación: editar autor."); break;
+                    case 3: Console.WriteLine("Simulación: editar año/categoría."); break;
+                    case 0: back = true; break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void DeleteBook()
+        {
+            Console.WriteLine("Simulación: eliminar libro (validar que no esté prestado).");
         }
 
         static void ShowUsersMenu()
