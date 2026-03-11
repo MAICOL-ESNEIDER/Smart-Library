@@ -223,10 +223,36 @@ namespace SmartLibrary
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: crear préstamo (validaciones)."); break;
-                    case 2: Console.WriteLine("Funcionalidad de listado en desarrollo..."); break;
+                    case 2: ShowListLoansMenu(); break;
                     case 3: Console.WriteLine("Simulación: ver detalle de préstamo."); break;
                     case 4: Console.WriteLine("Simulación: registrar devolución."); break;
                     case 5: Console.WriteLine("Simulación: eliminar préstamo (reglas sugeridas)."); break;
+                    case 0: back = true; break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void ShowListLoansMenu()
+        {
+            bool back = false;
+
+            while (!back)
+            {
+                Console.WriteLine("=== LISTAR PRÉSTAMOS ===");
+                Console.WriteLine("1. Listar todos");
+                Console.WriteLine("2. Listar activos");
+                Console.WriteLine("3. Listar cerrados");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1: Console.WriteLine("Simulación: mostrar todos los préstamos."); break;
+                    case 2: Console.WriteLine("Simulación: mostrar préstamos activos."); break;
+                    case 3: Console.WriteLine("Simulación: mostrar préstamos cerrados."); break;
                     case 0: back = true; break;
                 }
 
@@ -253,6 +279,7 @@ namespace SmartLibrary
         }
     }
 }
+
 
 
 
