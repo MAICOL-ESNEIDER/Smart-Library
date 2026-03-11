@@ -11,7 +11,7 @@ namespace SmartLibrary
             while (running)
             {
                 ShowMainMenu();
-                int option = ReadOption();
+                int option = ReadOption(1, 6);
 
                 switch (option)
                 {
@@ -56,14 +56,14 @@ namespace SmartLibrary
             Console.WriteLine("=========================");
         }
 
-        static int ReadOption()
+        static int ReadOption(int min, int max)
         {
             while (true)
             {
                 Console.Write("Seleccione una opción: ");
                 string? input = Console.ReadLine();
 
-                if (int.TryParse(input, out int option) && option >= 1 && option <= 6)
+                if (int.TryParse(input, out int option) && option >= min && option <= max)
                     return option;
 
                 Console.WriteLine("Opción inválida.");
@@ -72,62 +72,72 @@ namespace SmartLibrary
 
         static void ShowBooksMenu()
         {
-            Console.WriteLine("=== MENÚ LIBROS ===");
-            Console.WriteLine("1. Registrar libro");
-            Console.WriteLine("2. Listar libros");
-            Console.WriteLine("3. Ver detalle de libro");
-            Console.WriteLine("4. Actualizar libro");
-            Console.WriteLine("5. Eliminar libro");
-            Console.WriteLine("0. Volver");
+            bool back = false;
 
-            Console.WriteLine("Funcionalidad en desarrollo...");
+            while (!back)
+            {
+                Console.WriteLine("=== MENÚ LIBROS ===");
+                Console.WriteLine("1. Registrar libro");
+                Console.WriteLine("2. Listar libros");
+                Console.WriteLine("3. Ver detalle de libro");
+                Console.WriteLine("4. Actualizar libro");
+                Console.WriteLine("5. Eliminar libro");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 5);
+
+                switch (option)
+                {
+                    case 1:
+                        Console.WriteLine("Simulación: registrar libro.");
+                        break;
+
+                    case 2:
+                        Console.WriteLine("Simulación: listar libros.");
+                        break;
+
+                    case 3:
+                        Console.WriteLine("Simulación: ver detalle de libro.");
+                        break;
+
+                    case 4:
+                        Console.WriteLine("Simulación: actualizar libro.");
+                        break;
+
+                    case 5:
+                        Console.WriteLine("Simulación: eliminar libro.");
+                        break;
+
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
         }
 
         static void ShowUsersMenu()
         {
             Console.WriteLine("=== MENÚ USUARIOS ===");
-            Console.WriteLine("1. Registrar usuario");
-            Console.WriteLine("2. Listar usuarios");
-            Console.WriteLine("3. Ver detalle de usuario");
-            Console.WriteLine("4. Actualizar usuario");
-            Console.WriteLine("5. Eliminar usuario");
-            Console.WriteLine("0. Volver");
-
             Console.WriteLine("Funcionalidad en desarrollo...");
         }
 
         static void ShowLoansMenu()
         {
             Console.WriteLine("=== MENÚ PRÉSTAMOS ===");
-            Console.WriteLine("1. Crear préstamo");
-            Console.WriteLine("2. Listar préstamos");
-            Console.WriteLine("3. Ver detalle de préstamo");
-            Console.WriteLine("4. Registrar devolución");
-            Console.WriteLine("5. Eliminar préstamo");
-            Console.WriteLine("0. Volver");
-
             Console.WriteLine("Funcionalidad en desarrollo...");
         }
 
         static void ShowSearchMenu()
         {
             Console.WriteLine("=== BÚSQUEDAS Y REPORTES ===");
-            Console.WriteLine("1. Buscar libro");
-            Console.WriteLine("2. Buscar usuario");
-            Console.WriteLine("3. Reportes");
-            Console.WriteLine("0. Volver");
-
             Console.WriteLine("Funcionalidad en desarrollo...");
         }
 
         static void ShowDataMenu()
         {
             Console.WriteLine("=== GUARDAR / CARGAR DATOS ===");
-            Console.WriteLine("1. Guardar datos");
-            Console.WriteLine("2. Cargar datos");
-            Console.WriteLine("3. Reiniciar datos");
-            Console.WriteLine("0. Volver");
-
             Console.WriteLine("Funcionalidad en desarrollo...");
         }
 
