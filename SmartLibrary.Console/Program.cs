@@ -164,7 +164,7 @@ namespace SmartLibrary
                     case 2: Console.WriteLine("Simulación: listar usuarios."); break;
                     case 3: Console.WriteLine("Simulación: ver detalle de usuario."); break;
                     case 4: UpdateUserMenu(); break;
-                    case 5: Console.WriteLine("Simulación: eliminar usuario."); break;
+                    case 5: DeleteUser(); break;
                     case 0: back = true; break;
                 }
 
@@ -198,6 +198,11 @@ namespace SmartLibrary
             }
         }
 
+        static void DeleteUser()
+        {
+            Console.WriteLine("Simulación: eliminar usuario (validar que no tenga préstamos activos).");
+        }
+
         // ===================== OTROS MENÚS =====================
         static void ShowLoansMenu() => Console.WriteLine("=== MENÚ PRÉSTAMOS ===\nFuncionalidad en desarrollo...");
         static void ShowSearchMenu() => Console.WriteLine("=== BÚSQUEDAS Y REPORTES ===\nFuncionalidad en desarrollo...");
@@ -218,5 +223,6 @@ namespace SmartLibrary
         }
     }
 }
+
 
 
