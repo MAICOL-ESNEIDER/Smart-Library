@@ -57,7 +57,6 @@ namespace SmartLibrary
         static void ShowBooksMenu()
         {
             bool back = false;
-
             while (!back)
             {
                 Console.WriteLine("=== MENÚ LIBROS ===");
@@ -69,7 +68,6 @@ namespace SmartLibrary
                 Console.WriteLine("0. Volver");
 
                 int option = ReadOption(0, 5);
-
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: registrar libro."); break;
@@ -79,7 +77,6 @@ namespace SmartLibrary
                     case 5: DeleteBook(); break;
                     case 0: back = true; break;
                 }
-
                 Console.WriteLine();
             }
         }
@@ -87,7 +84,6 @@ namespace SmartLibrary
         static void ShowListBooksMenu()
         {
             bool back = false;
-
             while (!back)
             {
                 Console.WriteLine("=== LISTAR LIBROS ===");
@@ -97,7 +93,6 @@ namespace SmartLibrary
                 Console.WriteLine("0. Volver");
 
                 int option = ReadOption(0, 3);
-
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: mostrar todos los libros."); break;
@@ -105,7 +100,6 @@ namespace SmartLibrary
                     case 3: Console.WriteLine("Simulación: mostrar libros prestados."); break;
                     case 0: back = true; break;
                 }
-
                 Console.WriteLine();
             }
         }
@@ -113,7 +107,6 @@ namespace SmartLibrary
         static void UpdateBookMenu()
         {
             bool back = false;
-
             while (!back)
             {
                 Console.WriteLine("=== ACTUALIZAR LIBRO ===");
@@ -123,7 +116,6 @@ namespace SmartLibrary
                 Console.WriteLine("0. Volver");
 
                 int option = ReadOption(0, 3);
-
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: editar título."); break;
@@ -131,7 +123,6 @@ namespace SmartLibrary
                     case 3: Console.WriteLine("Simulación: editar año/categoría."); break;
                     case 0: back = true; break;
                 }
-
                 Console.WriteLine();
             }
         }
@@ -145,7 +136,6 @@ namespace SmartLibrary
         static void ShowUsersMenu()
         {
             bool back = false;
-
             while (!back)
             {
                 Console.WriteLine("=== MENÚ USUARIOS ===");
@@ -157,7 +147,6 @@ namespace SmartLibrary
                 Console.WriteLine("0. Volver");
 
                 int option = ReadOption(0, 5);
-
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: registrar usuario."); break;
@@ -167,7 +156,6 @@ namespace SmartLibrary
                     case 5: DeleteUser(); break;
                     case 0: back = true; break;
                 }
-
                 Console.WriteLine();
             }
         }
@@ -175,7 +163,6 @@ namespace SmartLibrary
         static void UpdateUserMenu()
         {
             bool back = false;
-
             while (!back)
             {
                 Console.WriteLine("=== ACTUALIZAR USUARIO ===");
@@ -185,7 +172,6 @@ namespace SmartLibrary
                 Console.WriteLine("0. Volver");
 
                 int option = ReadOption(0, 3);
-
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: editar nombre."); break;
@@ -193,7 +179,6 @@ namespace SmartLibrary
                     case 3: Console.WriteLine("Simulación: activar/desactivar usuario."); break;
                     case 0: back = true; break;
                 }
-
                 Console.WriteLine();
             }
         }
@@ -202,12 +187,10 @@ namespace SmartLibrary
         {
             Console.WriteLine("Simulación: eliminar usuario (validar que no tenga préstamos activos).");
         }
-
         // ===================== PRÉSTAMOS =====================
         static void ShowLoansMenu()
         {
             bool back = false;
-
             while (!back)
             {
                 Console.WriteLine("=== MENÚ PRÉSTAMOS ===");
@@ -219,7 +202,6 @@ namespace SmartLibrary
                 Console.WriteLine("0. Volver");
 
                 int option = ReadOption(0, 5);
-
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: crear préstamo (validaciones)."); break;
@@ -229,7 +211,6 @@ namespace SmartLibrary
                     case 5: DeleteLoan(); break;
                     case 0: back = true; break;
                 }
-
                 Console.WriteLine();
             }
         }
@@ -237,7 +218,6 @@ namespace SmartLibrary
         static void ShowListLoansMenu()
         {
             bool back = false;
-
             while (!back)
             {
                 Console.WriteLine("=== LISTAR PRÉSTAMOS ===");
@@ -247,7 +227,6 @@ namespace SmartLibrary
                 Console.WriteLine("0. Volver");
 
                 int option = ReadOption(0, 3);
-
                 switch (option)
                 {
                     case 1: Console.WriteLine("Simulación: mostrar todos los préstamos."); break;
@@ -255,7 +234,6 @@ namespace SmartLibrary
                     case 3: Console.WriteLine("Simulación: mostrar préstamos cerrados."); break;
                     case 0: back = true; break;
                 }
-
                 Console.WriteLine();
             }
         }
@@ -270,10 +248,54 @@ namespace SmartLibrary
             Console.WriteLine("Simulación: eliminar préstamo (validar reglas de negocio).");
         }
 
-        // ===================== OTROS MENÚS =====================
-        static void ShowSearchMenu() => Console.WriteLine("=== BÚSQUEDAS Y REPORTES ===\nFuncionalidad en desarrollo...");
-        static void ShowDataMenu() => Console.WriteLine("=== GUARDAR / CARGAR DATOS ===\nFuncionalidad en desarrollo...");
+        // ===================== BÚSQUEDAS Y REPORTES =====================
+        static void ShowSearchMenu()
+        {
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("=== MENÚ BÚSQUEDAS Y REPORTES ===");
+                Console.WriteLine("1. Buscar libros por título/autor");
+                Console.WriteLine("2. Buscar usuarios por nombre");
+                Console.WriteLine("3. Reporte de préstamos activos");
+                Console.WriteLine("4. Reporte de préstamos vencidos");
+                Console.WriteLine("0. Volver");
 
+                int option = ReadOption(0, 4);
+                switch (option)
+                {
+                    case 1: Console.WriteLine("Simulación: buscar libros por título/autor."); break;
+                    case 2: Console.WriteLine("Simulación: buscar usuarios por nombre."); break;
+                    case 3: Console.WriteLine("Simulación: reporte de préstamos activos."); break;
+                    case 4: Console.WriteLine("Simulación: reporte de préstamos vencidos."); break;
+                    case 0: back = true; break;
+                }
+                Console.WriteLine();
+            }
+        }
+        // ===================== DATOS =====================
+        static void ShowDataMenu()
+        {
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("=== GUARDAR / CARGAR DATOS ===");
+                Console.WriteLine("1. Guardar datos");
+                Console.WriteLine("2. Cargar datos");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 2);
+                switch (option)
+                {
+                    case 1: Console.WriteLine("Simulación: guardar datos."); break;
+                    case 2: Console.WriteLine("Simulación: cargar datos."); break;
+                    case 0: back = true; break;
+                }
+                Console.WriteLine();
+            }
+        }
+
+        // ===================== SALIDA =====================
         static bool ExitApplication()
         {
             Console.Write("¿Guardar antes de salir? (S/N): ");
@@ -289,10 +311,3 @@ namespace SmartLibrary
         }
     }
 }
-
-
-
-
-
-
-
