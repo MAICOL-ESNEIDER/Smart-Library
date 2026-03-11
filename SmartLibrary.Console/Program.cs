@@ -226,7 +226,7 @@ namespace SmartLibrary
                     case 2: ShowListLoansMenu(); break;
                     case 3: Console.WriteLine("Simulación: ver detalle de préstamo."); break;
                     case 4: RegisterReturn(); break;
-                    case 5: Console.WriteLine("Simulación: eliminar préstamo (reglas sugeridas)."); break;
+                    case 5: DeleteLoan(); break;
                     case 0: back = true; break;
                 }
 
@@ -265,6 +265,11 @@ namespace SmartLibrary
             Console.WriteLine("Simulación: registrar devolución (validar estado del préstamo).");
         }
 
+        static void DeleteLoan()
+        {
+            Console.WriteLine("Simulación: eliminar préstamo (validar reglas de negocio).");
+        }
+
         // ===================== OTROS MENÚS =====================
         static void ShowSearchMenu() => Console.WriteLine("=== BÚSQUEDAS Y REPORTES ===\nFuncionalidad en desarrollo...");
         static void ShowDataMenu() => Console.WriteLine("=== GUARDAR / CARGAR DATOS ===\nFuncionalidad en desarrollo...");
@@ -284,6 +289,7 @@ namespace SmartLibrary
         }
     }
 }
+
 
 
 
