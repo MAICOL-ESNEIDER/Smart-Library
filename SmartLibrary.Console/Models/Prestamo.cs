@@ -9,10 +9,8 @@ namespace SmartLibrary.Console.Models
         public DateTime FechaDevolucion { get; set; }
         public EstadoPrestamo Estado { get; set; } = EstadoPrestamo.Activo;
 
-        // Constructor vacío
         public Prestamo() { }
 
-        // Constructor completo
         public Prestamo(int id, Libro libro, Usuario usuario, DateTime fechaPrestamo, DateTime fechaDevolucion)
         {
             Id = id;
@@ -22,5 +20,10 @@ namespace SmartLibrary.Console.Models
             FechaDevolucion = fechaDevolucion;
             Estado = EstadoPrestamo.Activo;
         }
+
+        // Métodos
+        public string ResumenCorto() => $"{Id} - {Libro?.Titulo} ({Usuario?.Nombre})";
+        public string DetalleCompleto() =>
+            $"[{Id}] Libro: {Libro?.Titulo}, Usuario: {Usuario?.Nombre}, Prestado: {FechaPrestamo:d}, Devolución: {FechaDevolucion:d}, Estado: {Estado}";
     }
 }
