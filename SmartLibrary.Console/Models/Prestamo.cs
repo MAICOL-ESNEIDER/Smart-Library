@@ -21,9 +21,11 @@ namespace SmartLibrary.Console.Models
             Estado = EstadoPrestamo.Activo;
         }
 
-        // Métodos
         public string ResumenCorto() => $"{Id} - {Libro?.Titulo} ({Usuario?.Nombre})";
         public string DetalleCompleto() =>
             $"[{Id}] Libro: {Libro?.Titulo}, Usuario: {Usuario?.Nombre}, Prestado: {FechaPrestamo:d}, Devolución: {FechaDevolucion:d}, Estado: {Estado}";
+
+        // Override
+        public override string ToString() => ResumenCorto();
     }
 }
