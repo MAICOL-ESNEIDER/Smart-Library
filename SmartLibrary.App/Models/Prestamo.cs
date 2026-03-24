@@ -14,7 +14,7 @@ namespace SmartLibrary.App.Models
         // Constructor vacío
         public Prestamo() { }
 
-        // Constructor completo
+        // Constructor con fecha de préstamo (sin devolución definida)
         public Prestamo(int id, Libro libro, Usuario usuario, DateTime fechaPrestamo)
         {
             Id = id;
@@ -25,11 +25,22 @@ namespace SmartLibrary.App.Models
             Estado = EstadoPrestamo.Activo;
         }
 
+        // Constructor completo con fecha de devolución
+        public Prestamo(int id, Libro libro, Usuario usuario, DateTime fechaPrestamo, DateTime fechaDevolucion)
+        {
+            Id = id;
+            Libro = libro;
+            Usuario = usuario;
+            FechaPrestamo = fechaPrestamo;
+            FechaDevolucion = fechaDevolucion;
+            Estado = EstadoPrestamo.Activo;
+        }
+
         // Métodos de validación
         public bool EstaVencido()
         {
-            return Estado == EstadoPrestamo.Activo 
-                   && FechaDevolucion.HasValue 
+            return Estado == EstadoPrestamo.Activo
+                   && FechaDevolucion.HasValue
                    && FechaDevolucion.Value < DateTime.Now;
         }
 

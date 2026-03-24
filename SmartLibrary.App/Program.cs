@@ -1,12 +1,27 @@
 ﻿using System;
 using SmartLibrary.App.Models;
-using Console = System.Console;
+
 namespace SmartLibrary.App
 {
     class Program
     {
-        static void Main(string[] args)
-        {
+      static void Main(string[] args)
+{
+    // === BLOQUE DE PRUEBAS DE MODELOS ===
+    var libroPrueba = new Libro(1, "Cien años de soledad", "Gabriel García Márquez", 1967, "Novela");
+    var usuarioPrueba = new Usuario(1, "Maicol Posada", "maicol@gmail.com");
+    var prestamoPrueba = new Prestamo(1, libroPrueba, usuarioPrueba, DateTime.Now, DateTime.Now.AddDays(15));
+    var estadoPrueba = EstadoPrestamo.Activo;
+
+    Console.WriteLine("---- PRUEBAS DE MODELOS ----");
+    Console.WriteLine(libroPrueba.DetalleCompleto());
+    Console.WriteLine(usuarioPrueba.DetalleCompleto());
+    Console.WriteLine(prestamoPrueba.DetalleCompleto());
+    Console.WriteLine($"Estado del préstamo: {estadoPrueba}");
+    Console.WriteLine();
+
+    // === MENÚ PRINCIPAL ===
+
             bool running = true;
 
             while (running)
