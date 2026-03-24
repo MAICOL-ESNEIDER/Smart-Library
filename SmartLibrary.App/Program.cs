@@ -1,27 +1,39 @@
 ﻿using System;
+using System.Collections.Generic; // necesario para List<>
 using SmartLibrary.App.Models;
 
 namespace SmartLibrary.App
 {
     class Program
     {
-      static void Main(string[] args)
-{
-    // === BLOQUE DE PRUEBAS DE MODELOS ===
-    var libroPrueba = new Libro(1, "Cien años de soledad", "Gabriel García Márquez", 1967, "Novela");
-    var usuarioPrueba = new Usuario(1, "Maicol Posada", "maicol@gmail.com");
-    var prestamoPrueba = new Prestamo(1, libroPrueba, usuarioPrueba, DateTime.Now, DateTime.Now.AddDays(15));
-    var estadoPrueba = EstadoPrestamo.Activo;
+        static void Main(string[] args)
+        {
+            // === LISTAS DE PRUEBA ===
+            var libros = new List<Libro>
+            {
+                new Libro(1, "Cien años de soledad", "Gabriel García Márquez", 1967, "Novela"),
+                new Libro(2, "El coronel no tiene quien le escriba", "Gabriel García Márquez", 1961, "Novela")
+            };
 
-    Console.WriteLine("---- PRUEBAS DE MODELOS ----");
-    Console.WriteLine(libroPrueba.DetalleCompleto());
-    Console.WriteLine(usuarioPrueba.DetalleCompleto());
-    Console.WriteLine(prestamoPrueba.DetalleCompleto());
-    Console.WriteLine($"Estado del préstamo: {estadoPrueba}");
-    Console.WriteLine();
+            var usuarios = new List<Usuario>
+            {
+                new Usuario(1, "Maicol Posada", "maicol@email.com"),
+                new Usuario(2, "Ana Pérez", "ana@email.com")
+            };
 
-    // === MENÚ PRINCIPAL ===
+            var prestamos = new List<Prestamo>
+            {
+                new Prestamo(1, libros[0], usuarios[0], DateTime.Now, DateTime.Now.AddDays(7))
+            };
 
+            // === BLOQUE DE PRUEBAS DE MODELOS ===
+            Console.WriteLine("---- PRUEBAS DE MODELOS ----");
+            Console.WriteLine(libros[0].DetalleCompleto());
+            Console.WriteLine(usuarios[0].DetalleCompleto());
+            Console.WriteLine(prestamos[0].DetalleCompleto());
+            Console.WriteLine();
+
+            // === MENÚ PRINCIPAL ===
             bool running = true;
 
             while (running)
@@ -31,11 +43,11 @@ namespace SmartLibrary.App
 
                 switch (option)
                 {
-                    case 1: ShowBooksMenu(); break;
-                    case 2: ShowUsersMenu(); break;
-                    case 3: ShowLoansMenu(); break;
-                    case 4: ShowSearchMenu(); break;
-                    case 5: ShowDataMenu(); break;
+                    case 1: ShowBooksMenu(libros); break;
+                    case 2: ShowUsersMenu(usuarios); break;
+                    case 3: ShowLoansMenu(prestamos); break;
+                    case 4: Console.WriteLine("Funcionalidad de búsquedas en desarrollo."); break;
+                    case 5: Console.WriteLine("Funcionalidad de guardar/cargar en desarrollo."); break;
                     case 6: running = ExitApplication(); break;
                 }
 
@@ -70,55 +82,67 @@ namespace SmartLibrary.App
         }
 
         // ===================== LIBROS =====================
-        static void ShowBooksMenu()
+      static void ShowBooksMenu(List<Libro> libros)
+{
+    bool back = false;
+    while (!back)
+    {
+        Console.WriteLine("=== MENÚ LIBROS ===");
+        Console.WriteLine("1. Registrar libro");
+        Console.WriteLine("2. Listar libros");
+        Console.WriteLine("3. Ver detalle de libro");
+        Console.WriteLine("4. Actualizar libro");
+        Console.WriteLine("5. Eliminar libro");
+        Console.WriteLine("0. Volver");
+
+        int option = ReadOption(0, 5);
+        switch (option)
         {
-            bool back = false;
-            while (!back)
-            {
-                Console.WriteLine("=== MENÚ LIBROS ===");
-                Console.WriteLine("1. Registrar libro");
-                Console.WriteLine("2. Listar libros");
-                Console.WriteLine("3. Ver detalle de libro");
-                Console.WriteLine("4. Actualizar libro");
-                Console.WriteLine("5. Eliminar libro");
-                Console.WriteLine("0. Volver");
-
-                int option = ReadOption(0, 5);
-                switch (option)
+            case 1: Console.WriteLine("Simulación: registrar libro."); break;
+            case 2:
+                Console.WriteLine("=== LISTA DE LIBROS ===");
+                foreach (var libro in libros)
                 {
-                    case 1: Console.WriteLine("Simulación: registrar libro."); break;
-                    case 2: ShowListBooksMenu(); break;
-                    case 3: Console.WriteLine("Simulación: ver detalle de libro."); break;
-                    case 4: UpdateBookMenu(); break;
-                    case 5: DeleteBook(); break;
-                    case 0: back = true; break;
+                    Console.WriteLine(libro.DetalleCompleto());
                 }
-                Console.WriteLine();
-            }
+                break;
+            case 3: Console.WriteLine("Simulación: ver detalle de libro."); break;
+            case 4: UpdateBookMenu(); break;
+            case 5: DeleteBook(); break;
+            case 0: back = true; break;
         }
+        Console.WriteLine();
+    }
+}
 
-        static void ShowListBooksMenu()
+       static void ShowListBooksMenu(List<Libro> libros)
+{
+    bool back = false;
+    while (!back)
+    {
+        Console.WriteLine("=== LISTAR LIBROS ===");
+        Console.WriteLine("1. Listar todos");
+        Console.WriteLine("2. Listar disponibles");
+        Console.WriteLine("3. Listar prestados");
+        Console.WriteLine("0. Volver");
+
+        int option = ReadOption(0, 3);
+        switch (option)
         {
-            bool back = false;
-            while (!back)
-            {
-                Console.WriteLine("=== LISTAR LIBROS ===");
-                Console.WriteLine("1. Listar todos");
-                Console.WriteLine("2. Listar disponibles");
-                Console.WriteLine("3. Listar prestados");
-                Console.WriteLine("0. Volver");
-
-                int option = ReadOption(0, 3);
-                switch (option)
+            case 1:
+                Console.WriteLine("=== TODOS LOS LIBROS ===");
+                foreach (var libro in libros)
                 {
-                    case 1: Console.WriteLine("Simulación: mostrar todos los libros."); break;
-                    case 2: Console.WriteLine("Simulación: mostrar libros disponibles."); break;
-                    case 3: Console.WriteLine("Simulación: mostrar libros prestados."); break;
-                    case 0: back = true; break;
+                    Console.WriteLine(libro.DetalleCompleto());
                 }
-                Console.WriteLine();
-            }
+                break;
+            case 2: Console.WriteLine("Simulación: mostrar libros disponibles."); break;
+            case 3: Console.WriteLine("Simulación: mostrar libros prestados."); break;
+            case 0: back = true; break;
         }
+        Console.WriteLine();
+    }
+}
 
         static void UpdateBookMenu()
         {
@@ -149,32 +173,38 @@ namespace SmartLibrary.App
         }
 
         // ===================== USUARIOS =====================
-        static void ShowUsersMenu()
-        {
-            bool back = false;
-            while (!back)
-            {
-                Console.WriteLine("=== MENÚ USUARIOS ===");
-                Console.WriteLine("1. Registrar usuario");
-                Console.WriteLine("2. Listar usuarios");
-                Console.WriteLine("3. Ver detalle de usuario");
-                Console.WriteLine("4. Actualizar usuario");
-                Console.WriteLine("5. Eliminar usuario");
-                Console.WriteLine("0. Volver");
+        static void ShowUsersMenu(List<Usuario> usuarios)
+{
+    bool back = false;
+    while (!back)
+    {
+        Console.WriteLine("=== MENÚ USUARIOS ===");
+        Console.WriteLine("1. Registrar usuario");
+        Console.WriteLine("2. Listar usuarios");
+        Console.WriteLine("3. Ver detalle de usuario");
+        Console.WriteLine("4. Actualizar usuario");
+        Console.WriteLine("5. Eliminar usuario");
+        Console.WriteLine("0. Volver");
 
-                int option = ReadOption(0, 5);
-                switch (option)
+        int option = ReadOption(0, 5);
+        switch (option)
+        {
+            case 1: Console.WriteLine("Simulación: registrar usuario."); break;
+            case 2:
+                Console.WriteLine("=== LISTA DE USUARIOS ===");
+                foreach (var usuario in usuarios)
                 {
-                    case 1: Console.WriteLine("Simulación: registrar usuario."); break;
-                    case 2: Console.WriteLine("Simulación: listar usuarios."); break;
-                    case 3: Console.WriteLine("Simulación: ver detalle de usuario."); break;
-                    case 4: UpdateUserMenu(); break;
-                    case 5: DeleteUser(); break;
-                    case 0: back = true; break;
+                    Console.WriteLine(usuario.DetalleCompleto());
                 }
-                Console.WriteLine();
-            }
+                break;
+            case 3: Console.WriteLine("Simulación: ver detalle de usuario."); break;
+            case 4: UpdateUserMenu(); break;
+            case 5: DeleteUser(); break;
+            case 0: back = true; break;
         }
+        Console.WriteLine();
+    }
+}
 
         static void UpdateUserMenu()
         {
@@ -204,55 +234,61 @@ namespace SmartLibrary.App
             Console.WriteLine("Simulación: eliminar usuario (validar que no tenga préstamos activos).");
         }
         // ===================== PRÉSTAMOS =====================
-        static void ShowLoansMenu()
+        static void ShowLoansMenu(List<Prestamo> prestamos)
+{
+    bool back = false;
+    while (!back)
+    {
+        Console.WriteLine("=== MENÚ PRÉSTAMOS ===");
+        Console.WriteLine("1. Crear préstamo");
+        Console.WriteLine("2. Listar préstamos");
+        Console.WriteLine("3. Ver detalle de préstamo");
+        Console.WriteLine("4. Registrar devolución");
+        Console.WriteLine("5. Eliminar préstamo");
+        Console.WriteLine("0. Volver");
+
+        int option = ReadOption(0, 5);
+        switch (option)
         {
-            bool back = false;
-            while (!back)
-            {
-                Console.WriteLine("=== MENÚ PRÉSTAMOS ===");
-                Console.WriteLine("1. Crear préstamo");
-                Console.WriteLine("2. Listar préstamos");
-                Console.WriteLine("3. Ver detalle de préstamo");
-                Console.WriteLine("4. Registrar devolución");
-                Console.WriteLine("5. Eliminar préstamo");
-                Console.WriteLine("0. Volver");
-
-                int option = ReadOption(0, 5);
-                switch (option)
-                {
-                    case 1: Console.WriteLine("Simulación: crear préstamo (validaciones)."); break;
-                    case 2: ShowListLoansMenu(); break;
-                    case 3: Console.WriteLine("Simulación: ver detalle de préstamo."); break;
-                    case 4: RegisterReturn(); break;
-                    case 5: DeleteLoan(); break;
-                    case 0: back = true; break;
-                }
-                Console.WriteLine();
-            }
+            case 1: Console.WriteLine("Simulación: crear préstamo (validaciones)."); break;
+            case 2: ShowListLoansMenu(prestamos); break;
+            case 3: Console.WriteLine("Simulación: ver detalle de préstamo."); break;
+            case 4: RegisterReturn(); break;
+            case 5: DeleteLoan(); break;
+            case 0: back = true; break;
         }
+        Console.WriteLine();
+    }
+}
 
-        static void ShowListLoansMenu()
+static void ShowListLoansMenu(List<Prestamo> prestamos)
+{
+    bool back = false;
+    while (!back)
+    {
+        Console.WriteLine("=== LISTAR PRÉSTAMOS ===");
+        Console.WriteLine("1. Listar todos");
+        Console.WriteLine("2. Listar activos");
+        Console.WriteLine("3. Listar cerrados");
+        Console.WriteLine("0. Volver");
+
+        int option = ReadOption(0, 3);
+        switch (option)
         {
-            bool back = false;
-            while (!back)
-            {
-                Console.WriteLine("=== LISTAR PRÉSTAMOS ===");
-                Console.WriteLine("1. Listar todos");
-                Console.WriteLine("2. Listar activos");
-                Console.WriteLine("3. Listar cerrados");
-                Console.WriteLine("0. Volver");
-
-                int option = ReadOption(0, 3);
-                switch (option)
+            case 1:
+                Console.WriteLine("=== TODOS LOS PRÉSTAMOS ===");
+                foreach (var prestamo in prestamos)
                 {
-                    case 1: Console.WriteLine("Simulación: mostrar todos los préstamos."); break;
-                    case 2: Console.WriteLine("Simulación: mostrar préstamos activos."); break;
-                    case 3: Console.WriteLine("Simulación: mostrar préstamos cerrados."); break;
-                    case 0: back = true; break;
+                    Console.WriteLine(prestamo.DetalleCompleto());
                 }
-                Console.WriteLine();
-            }
+                break;
+            case 2: Console.WriteLine("Simulación: mostrar préstamos activos."); break;
+            case 3: Console.WriteLine("Simulación: mostrar préstamos cerrados."); break;
+            case 0: back = true; break;
         }
+        Console.WriteLine();
+    }
+}
 
         static void RegisterReturn()
         {
