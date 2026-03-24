@@ -22,5 +22,8 @@ namespace SmartLibrary.Console.Models
         // Métodos
         public string ResumenCorto() => $"{Id} - {Nombre}";
         public string DetalleCompleto() => $"[{Id}] {Nombre}, Contacto: {Contacto}, Activo: {Activo}";
+
+        // Override
+        public override string ToString() => ResumenCorto();
     }
 }
