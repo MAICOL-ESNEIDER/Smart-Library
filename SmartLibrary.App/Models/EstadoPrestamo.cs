@@ -1,4 +1,4 @@
-namespace SmartLibrary.Console.Models
+namespace SmartLibrary.App.Models
 {
     public enum EstadoPrestamo
     {

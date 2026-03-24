@@ -1,6 +1,7 @@
 ﻿using System;
-
-namespace SmartLibrary
+using SmartLibrary.App.Models;
+using Console = System.Console;
+namespace SmartLibrary.App
 {
     class Program
     {

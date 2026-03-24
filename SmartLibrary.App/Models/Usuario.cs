@@ -1,10 +1,10 @@
-namespace SmartLibrary.Console.Models
+namespace SmartLibrary.App.Models
 {
     public class Usuario
     {
         public int Id { get; set; }
-        public string Nombre { get; set; }
-        public string Contacto { get; set; }
+        public string Nombre { get; set; } = null!;
+        public string Contacto { get; set; } = null!;
         public bool Activo { get; set; } = true;
 
         // Constructor vacío

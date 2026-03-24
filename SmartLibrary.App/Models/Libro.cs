@@ -1,12 +1,12 @@
-namespace SmartLibrary.Console.Models
+namespace SmartLibrary.App.Models
 {
     public class Libro
     {
         public int Id { get; set; }
-        public string Titulo { get; set; }
-        public string Autor { get; set; }
+        public string Titulo { get; set; } = null!;
+        public string Autor { get; set; } = null!;
         public int Anio { get; set; }
-        public string Categoria { get; set; }
+        public string Categoria { get; set; } = null!;
         public bool Disponible { get; set; } = true;
 
         // Constructor vacío

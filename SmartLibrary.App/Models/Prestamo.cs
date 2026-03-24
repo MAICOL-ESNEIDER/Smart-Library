@@ -1,6 +1,6 @@
 using System;
 
-namespace SmartLibrary.Console.Models
+namespace SmartLibrary.App.Models
 {
     public class Prestamo
     {
