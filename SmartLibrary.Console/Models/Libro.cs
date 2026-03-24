@@ -26,6 +26,8 @@ namespace SmartLibrary.Console.Models
         // Métodos
         public string ResumenCorto() => $"{Id} - {Titulo} ({Autor})";
         public string DetalleCompleto() => $"[{Id}] {Titulo}, {Autor}, {Anio}, {Categoria}, Disponible: {Disponible}";
+
+        // Override
         public override string ToString() => ResumenCorto();
     }
 }
