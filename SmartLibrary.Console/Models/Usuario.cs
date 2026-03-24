@@ -18,5 +18,9 @@ namespace SmartLibrary.Console.Models
             Contacto = contacto;
             Activo = true;
         }
+
+        // Métodos
+        public string ResumenCorto() => $"{Id} - {Nombre}";
+        public string DetalleCompleto() => $"[{Id}] {Nombre}, Contacto: {Contacto}, Activo: {Activo}";
     }
 }
