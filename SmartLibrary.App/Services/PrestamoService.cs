@@ -22,5 +22,16 @@ namespace SmartLibrary.App.Services
         {
             return prestamos;
         }
+
+        // BÚSQUEDAS (EV08)
+        public Prestamo? BuscarPorId(int id)
+        {
+            return prestamos.Find(p => p.Id == id);
+        }
+
+        public List<Prestamo> BuscarPorEstado(EstadoPrestamo estado)
+        {
+            return prestamos.FindAll(p => p.Estado == estado);
+        }
     }
 }
