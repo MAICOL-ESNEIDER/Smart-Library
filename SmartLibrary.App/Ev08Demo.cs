@@ -102,25 +102,22 @@ namespace SmartLibrary.App
                 Console.WriteLine("  - " + p.ResumenCorto());
 
             // =========================================================
-            // COMMIT 4: KPIs + ESTADÍSTICAS (EV08 Punto 6 - OBLIGATORIO)
+            // KPIs + ESTADÍSTICAS (EV08 Punto 6 - OBLIGATORIO)
             // =========================================================
             Console.WriteLine();
             Console.WriteLine("===== (COMMIT 4) KPIs Y ESTADÍSTICAS =====");
 
-            // Libros KPIs
             Console.WriteLine("---- KPIs Libros ----");
             Console.WriteLine($"Total libros: {libroService.TotalLibros()}");
             Console.WriteLine($"Disponibles: {libroService.LibrosDisponibles()}");
             Console.WriteLine($"Prestados: {libroService.LibrosPrestados()}");
-
-            // Usuarios KPIs
+            
             Console.WriteLine();
             Console.WriteLine("---- KPIs Usuarios ----");
             Console.WriteLine($"Total usuarios: {usuarioService.TotalUsuarios()}");
             Console.WriteLine($"Activos: {usuarioService.UsuariosActivos()}");
             Console.WriteLine($"Inactivos: {usuarioService.UsuariosInactivos()}");
 
-            // Préstamos KPIs + promedio
             Console.WriteLine();
             Console.WriteLine("---- KPIs Préstamos ----");
             Console.WriteLine($"Total préstamos: {prestamoService.TotalPrestamos()}");
@@ -129,9 +126,68 @@ namespace SmartLibrary.App
             Console.WriteLine($"Vencidos: {prestamoService.PrestamosVencidos()}");
             Console.WriteLine($"Promedio días de préstamo: {prestamoService.PromedioDiasPrestamo():0.00}");
 
+            // =========================================================
+            // COMMIT 5: COMPARACIÓN ARRAY vs LIST (EV08 - OBLIGATORIO)
+            // =========================================================
             Console.WriteLine();
-            Console.WriteLine("===== FIN EV08 DEMO (commit 4) =====");
+            Console.WriteLine("===== (COMMIT 5) COMPARACIÓN ARRAY vs LIST =====");
+            CompareArrayVsList();
+
             Console.WriteLine();
+            Console.WriteLine("===== FIN EV08 DEMO (commit 5) =====");
+            Console.WriteLine();
+        }
+
+        // Comparación obligatoria Array vs List (en consola)
+        private static void CompareArrayVsList()
+        {
+            Console.WriteLine("Ejemplo con strings:");
+
+            // ARRAY: tamaño fijo
+            string[] nombresArray = new string[2];
+            nombresArray[0] = "Ana";
+            nombresArray[1] = "Maicol";
+
+            Console.WriteLine($"ARRAY tamaño fijo = {nombresArray.Length}");
+            Console.WriteLine($"ARRAY[0]={nombresArray[0]}, ARRAY[1]={nombresArray[1]}");
+
+            Console.WriteLine();
+            Console.WriteLine("Si quiero agregar un tercer elemento en ARRAY, no puedo directamente.");
+            Console.WriteLine("Tengo que crear un nuevo array más grande y copiar manualmente:");
+
+            string[] nuevoArray = new string[nombresArray.Length + 1];
+            for (int i = 0; i < nombresArray.Length; i++)
+            {
+                nuevoArray[i] = nombresArray[i];
+            }
+            nuevoArray[2] = "Carlos";
+
+            Console.WriteLine($"Nuevo ARRAY tamaño = {nuevoArray.Length}");
+            Console.WriteLine($"Nuevo ARRAY[2]={nuevoArray[2]}");
+
+            Console.WriteLine();
+            Console.WriteLine("LIST: tamaño dinámico (crece y se reduce fácil)");
+
+            var nombresList = new System.Collections.Generic.List<string>();
+            nombresList.Add("Ana");
+            nombresList.Add("Maicol");
+
+            Console.WriteLine($"LIST Count = {nombresList.Count}");
+            Console.WriteLine($"LIST[0]={nombresList[0]}, LIST[1]={nombresList[1]}");
+
+            Console.WriteLine("Agregando 'Carlos' con Add():");
+            nombresList.Add("Carlos");
+            Console.WriteLine($"LIST Count = {nombresList.Count}");
+            Console.WriteLine($"LIST[2]={nombresList[2]}");
+
+            Console.WriteLine("Eliminando 'Ana' con Remove():");
+            nombresList.Remove("Ana");
+            Console.WriteLine($"LIST Count = {nombresList.Count}");
+
+            Console.WriteLine();
+            Console.WriteLine("Conclusión:");
+            Console.WriteLine("- ARRAY: tamaño fijo, acceso rápido por índice, para crecer toca copiar a otro array.");
+            Console.WriteLine("- LIST: tamaño dinámico, permite Add/Remove fácil, ideal para colecciones que cambian.");
         }
 
         // Crea servicios con datos de prueba (2 libros, 2 usuarios, 1 préstamo)
@@ -156,7 +212,6 @@ namespace SmartLibrary.App
             usuarioService.AgregarUsuario(usuario2);
 
             // === Datos de prueba: Préstamo (1) ===
-            // Constructor sin fecha de devolución => FechaDevolucion null y Estado Activo
             var prestamo1 = new Prestamo(1, libro1, usuario1, DateTime.Now.AddDays(-3));
             prestamoService.AgregarPrestamo(prestamo1);
 
