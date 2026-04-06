@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SmartLibrary.App.Models;
 
 namespace SmartLibrary.App.Services
@@ -24,7 +25,6 @@ namespace SmartLibrary.App.Services
         }
 
         // BÚSQUEDAS (EV08)
-        // "Documento/ID" en tu modelo equivale a Id (int)
         public Usuario? BuscarPorId(int id)
         {
             return usuarios.Find(u => u.Id == id);
@@ -39,6 +39,28 @@ namespace SmartLibrary.App.Services
                 u.Nombre != null &&
                 u.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)
             );
+        }
+
+        // ORDENACIÓN (EV08)
+        public List<Usuario> OrdenarPorNombre()
+        {
+            return usuarios.OrderBy(u => u.Nombre).ToList();
+        }
+
+        // KPIs (EV08 - OBLIGATORIO)
+        public int TotalUsuarios()
+        {
+            return usuarios.Count;
+        }
+
+        public int UsuariosActivos()
+        {
+            return usuarios.Count(u => u.Activo);
+        }
+
+        public int UsuariosInactivos()
+        {
+            return usuarios.Count(u => !u.Activo);
         }
     }
 }
