@@ -32,12 +32,11 @@ namespace SmartLibrary.App
                 Console.WriteLine(" - " + p.ResumenCorto());
 
             // =========================================================
-            // COMMIT 3: BÚSQUEDAS + ORDENACIÓN (EV08 Puntos 4 y 5)
+            // BÚSQUEDAS + ORDENACIÓN (EV08 Puntos 4 y 5)
             // =========================================================
             Console.WriteLine();
             Console.WriteLine("===== (COMMIT 3) BÚSQUEDAS =====");
 
-            // --- Libros: buscar por Id, título, autor
             Console.WriteLine("Buscar libro por Id = 1:");
             var libroId1 = libroService.BuscarPorId(1);
             Console.WriteLine(libroId1 != null ? "  OK -> " + libroId1.DetalleCompleto() : "  No encontrado");
@@ -52,7 +51,6 @@ namespace SmartLibrary.App
             foreach (var l in porAutor)
                 Console.WriteLine("  - " + l.DetalleCompleto());
 
-            // --- Usuarios: buscar por Id / nombre
             Console.WriteLine();
             Console.WriteLine("Buscar usuario por Id = 2:");
             var usuarioId2 = usuarioService.BuscarPorId(2);
@@ -63,7 +61,6 @@ namespace SmartLibrary.App
             foreach (var u in usuariosAna)
                 Console.WriteLine("  - " + u.DetalleCompleto());
 
-            // --- Préstamos: buscar por Id / estado
             Console.WriteLine();
             Console.WriteLine("Buscar préstamo por Id = 1:");
             var prestamoId1 = prestamoService.BuscarPorId(1);
@@ -77,7 +74,6 @@ namespace SmartLibrary.App
             Console.WriteLine();
             Console.WriteLine("===== (COMMIT 3) ORDENACIÓN =====");
 
-            // --- Libros: ordenar por título / año
             Console.WriteLine("Libros ordenados por Título:");
             var librosPorTitulo = libroService.OrdenarPorTitulo();
             foreach (var l in librosPorTitulo)
@@ -88,14 +84,12 @@ namespace SmartLibrary.App
             foreach (var l in librosPorAnio)
                 Console.WriteLine("  - " + l.ResumenCorto());
 
-            // --- Usuarios: ordenar por nombre
             Console.WriteLine();
             Console.WriteLine("Usuarios ordenados por Nombre:");
             var usuariosOrdenados = usuarioService.OrdenarPorNombre();
             foreach (var u in usuariosOrdenados)
                 Console.WriteLine("  - " + u.ResumenCorto());
 
-            // --- Préstamos: ordenar por fecha de préstamo
             Console.WriteLine();
             Console.WriteLine("Préstamos ordenados por FechaPrestamo (ASC):");
             var prestamosAsc = prestamoService.OrdenarPorFechaPrestamoAsc();
@@ -107,8 +101,36 @@ namespace SmartLibrary.App
             foreach (var p in prestamosDesc)
                 Console.WriteLine("  - " + p.ResumenCorto());
 
+            // =========================================================
+            // COMMIT 4: KPIs + ESTADÍSTICAS (EV08 Punto 6 - OBLIGATORIO)
+            // =========================================================
             Console.WriteLine();
-            Console.WriteLine("===== FIN EV08 DEMO (commit 3) =====");
+            Console.WriteLine("===== (COMMIT 4) KPIs Y ESTADÍSTICAS =====");
+
+            // Libros KPIs
+            Console.WriteLine("---- KPIs Libros ----");
+            Console.WriteLine($"Total libros: {libroService.TotalLibros()}");
+            Console.WriteLine($"Disponibles: {libroService.LibrosDisponibles()}");
+            Console.WriteLine($"Prestados: {libroService.LibrosPrestados()}");
+
+            // Usuarios KPIs
+            Console.WriteLine();
+            Console.WriteLine("---- KPIs Usuarios ----");
+            Console.WriteLine($"Total usuarios: {usuarioService.TotalUsuarios()}");
+            Console.WriteLine($"Activos: {usuarioService.UsuariosActivos()}");
+            Console.WriteLine($"Inactivos: {usuarioService.UsuariosInactivos()}");
+
+            // Préstamos KPIs + promedio
+            Console.WriteLine();
+            Console.WriteLine("---- KPIs Préstamos ----");
+            Console.WriteLine($"Total préstamos: {prestamoService.TotalPrestamos()}");
+            Console.WriteLine($"Activos: {prestamoService.PrestamosActivos()}");
+            Console.WriteLine($"Devueltos: {prestamoService.PrestamosDevueltos()}");
+            Console.WriteLine($"Vencidos: {prestamoService.PrestamosVencidos()}");
+            Console.WriteLine($"Promedio días de préstamo: {prestamoService.PromedioDiasPrestamo():0.00}");
+
+            Console.WriteLine();
+            Console.WriteLine("===== FIN EV08 DEMO (commit 4) =====");
             Console.WriteLine();
         }
 
