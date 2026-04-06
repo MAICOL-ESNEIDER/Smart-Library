@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using SmartLibrary.App.Models;
 
 namespace SmartLibrary.App.Services
@@ -47,6 +48,33 @@ namespace SmartLibrary.App.Services
                 l.Autor != null &&
                 l.Autor.Contains(autor, StringComparison.OrdinalIgnoreCase)
             );
+        }
+
+        // ORDENACIÓN (EV08)
+        public List<Libro> OrdenarPorTitulo()
+        {
+            return libros.OrderBy(l => l.Titulo).ToList();
+        }
+
+        public List<Libro> OrdenarPorAnio()
+        {
+            return libros.OrderBy(l => l.Anio).ToList();
+        }
+
+        // KPIs (EV08 - OBLIGATORIO)
+        public int TotalLibros()
+        {
+            return libros.Count;
+        }
+
+        public int LibrosDisponibles()
+        {
+            return libros.Count(l => l.Disponible);
+        }
+
+        public int LibrosPrestados()
+        {
+            return libros.Count(l => !l.Disponible);
         }
     }
 }
