@@ -22,5 +22,23 @@ namespace SmartLibrary.App.Services
         {
             return usuarios;
         }
+
+        // BÚSQUEDAS (EV08)
+        // "Documento/ID" en tu modelo equivale a Id (int)
+        public Usuario? BuscarPorId(int id)
+        {
+            return usuarios.Find(u => u.Id == id);
+        }
+
+        public List<Usuario> BuscarPorNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return new List<Usuario>();
+
+            return usuarios.FindAll(u =>
+                u.Nombre != null &&
+                u.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)
+            );
+        }
     }
 }
