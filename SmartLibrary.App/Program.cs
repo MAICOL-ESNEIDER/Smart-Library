@@ -42,7 +42,7 @@ namespace SmartLibrary.App
                         break;
 
                     case 3:
-                        ShowLoansMenu();
+                        ShowLoansMenu(); // COMMIT 4: ya es CRUD real
                         break;
 
                     case 4:
@@ -86,7 +86,7 @@ namespace SmartLibrary.App
             // 1 préstamo (activo) -> libro1 queda no disponible
             libro1.Disponible = false;
 
-            // NOTA: Tu modelo no tiene FechaLimite, así que usamos FechaDevolucion como "fecha estimada/límite" en la simulación.
+            // NOTA: Tu modelo no tiene FechaLimite, así que usamos FechaDevolucion como "fecha estimada/límite" mientras está Activo.
             var prestamo1 = new Prestamo(1, libro1, usuario1, DateTime.Now.AddDays(-3), DateTime.Now.AddDays(4));
             prestamo1.Estado = EstadoPrestamo.Activo;
 
@@ -607,12 +607,16 @@ namespace SmartLibrary.App
             Console.WriteLine("[OK] Usuario eliminado correctamente.");
         }
 
-        // ===================== PRÉSTAMOS (stub, commit 4 lo vuelve CRUD real) =====================
+        // ===================== PRÉSTAMOS (CRUD REAL - COMMIT 4) =====================
         static void ShowLoansMenu()
         {
             bool back = false;
+
             while (!back)
             {
+                // Antes de mostrar listados, actualizamos vencidos en base a "fecha estimada/límite"
+                UpdateOverdueStatuses();
+
                 Console.WriteLine("=== MENÚ PRÉSTAMOS ===");
                 Console.WriteLine("1. Crear préstamo");
                 Console.WriteLine("2. Listar préstamos");
@@ -626,19 +630,19 @@ namespace SmartLibrary.App
                 switch (option)
                 {
                     case 1:
-                        Console.WriteLine("[PENDIENTE] Crear préstamo (CRUD real se agrega en commit 4).");
+                        CreateLoan();
                         break;
                     case 2:
-                        Console.WriteLine("[PENDIENTE] Listar préstamos (CRUD real se agrega en commit 4).");
+                        ShowListLoansMenu();
                         break;
                     case 3:
-                        Console.WriteLine("[PENDIENTE] Ver detalle (CRUD real se agrega en commit 4).");
+                        ViewLoanDetail();
                         break;
                     case 4:
-                        Console.WriteLine("[PENDIENTE] Registrar devolución (CRUD real se agrega en commit 4).");
+                        RegisterReturn();
                         break;
                     case 5:
-                        Console.WriteLine("[PENDIENTE] Eliminar préstamo (reglas se agregan en commit 4).");
+                        DeleteLoan();
                         break;
                     case 0:
                         back = true;
@@ -647,6 +651,246 @@ namespace SmartLibrary.App
 
                 Console.WriteLine();
             }
+        }
+
+        // Marca préstamos vencidos si siguen Activo y la fecha estimada (FechaDevolucion) ya pasó
+        static void UpdateOverdueStatuses()
+        {
+            var all = _prestamoService.ObtenerTodos();
+            foreach (var p in all)
+            {
+                if (p.Estado == EstadoPrestamo.Activo && p.FechaDevolucion.HasValue && p.FechaDevolucion.Value < DateTime.Now)
+                {
+                    p.Estado = EstadoPrestamo.Vencido;
+                }
+            }
+        }
+
+        static void CreateLoan()
+        {
+            Console.WriteLine("--- Crear préstamo ---");
+
+            int userId = ReadInt("ID del usuario: ");
+            var usuario = _usuarioService.BuscarPorId(userId);
+            if (usuario == null)
+            {
+                Console.WriteLine("[ERROR] Usuario no existe.");
+                return;
+            }
+            if (!usuario.Activo)
+            {
+                Console.WriteLine("[ERROR] Usuario inactivo. No puede crear préstamos.");
+                return;
+            }
+
+            int bookId = ReadInt("ID del libro: ");
+            var libro = _libroService.BuscarPorId(bookId);
+            if (libro == null)
+            {
+                Console.WriteLine("[ERROR] Libro no existe.");
+                return;
+            }
+            if (!libro.Disponible)
+            {
+                Console.WriteLine("[ERROR] Libro no disponible. Ya está prestado.");
+                return;
+            }
+
+            int dias = ReadInt("Días de préstamo (ej: 7): ");
+            if (dias <= 0)
+            {
+                Console.WriteLine("[ERROR] Los días deben ser mayores a 0.");
+                return;
+            }
+
+            // ID automático
+            int nextId = _prestamoService.ObtenerTodos().Count == 0
+                ? 1
+                : _prestamoService.ObtenerTodos().Max(p => p.Id) + 1;
+
+            var fechaPrestamo = DateTime.Now;
+            var fechaEstimadaDevolucion = DateTime.Now.AddDays(dias);
+
+            // Usamos constructor con "fechaDevolucion" como fecha estimada/límite
+            var prestamo = new Prestamo(nextId, libro, usuario, fechaPrestamo, fechaEstimadaDevolucion);
+            prestamo.Estado = EstadoPrestamo.Activo;
+
+            // Marcar libro como no disponible
+            libro.Disponible = false;
+
+            _prestamoService.AgregarPrestamo(prestamo);
+
+            Console.WriteLine("[OK] Préstamo creado correctamente.");
+            Console.WriteLine(prestamo.DetalleCompleto());
+        }
+
+        static void ShowListLoansMenu()
+        {
+            bool back = false;
+            while (!back)
+            {
+                UpdateOverdueStatuses();
+
+                Console.WriteLine("=== LISTAR PRÉSTAMOS ===");
+                Console.WriteLine("1. Listar todos");
+                Console.WriteLine("2. Listar activos");
+                Console.WriteLine("3. Listar cerrados (devueltos/vencidos)");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1:
+                        ListLoansAll();
+                        break;
+                    case 2:
+                        ListLoansActive();
+                        break;
+                    case 3:
+                        ListLoansClosed();
+                        break;
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void ListLoansAll()
+        {
+            Console.WriteLine("--- TODOS LOS PRÉSTAMOS ---");
+
+            var all = _prestamoService.ObtenerTodos();
+            if (all.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay préstamos registrados.");
+                return;
+            }
+
+            foreach (var p in all)
+                Console.WriteLine(p.DetalleCompleto());
+        }
+
+        static void ListLoansActive()
+        {
+            Console.WriteLine("--- PRÉSTAMOS ACTIVOS ---");
+
+            var active = _prestamoService.BuscarPorEstado(EstadoPrestamo.Activo);
+            if (active.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay préstamos activos.");
+                return;
+            }
+
+            foreach (var p in active)
+                Console.WriteLine(p.DetalleCompleto());
+        }
+
+        static void ListLoansClosed()
+        {
+            Console.WriteLine("--- PRÉSTAMOS CERRADOS (DEVUELTO / VENCIDO) ---");
+
+            var all = _prestamoService.ObtenerTodos();
+            var closed = all.Where(p => p.Estado != EstadoPrestamo.Activo).ToList();
+
+            if (closed.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay préstamos cerrados.");
+                return;
+            }
+
+            foreach (var p in closed)
+                Console.WriteLine(p.DetalleCompleto());
+        }
+
+        static void ViewLoanDetail()
+        {
+            Console.WriteLine("--- Ver detalle de préstamo ---");
+            int id = ReadInt("Ingrese ID del préstamo: ");
+
+            var prestamo = _prestamoService.BuscarPorId(id);
+            if (prestamo == null)
+            {
+                Console.WriteLine("[INFO] Préstamo no encontrado.");
+                return;
+            }
+
+            Console.WriteLine(prestamo.DetalleCompleto());
+            Console.WriteLine($"Días transcurridos: {prestamo.DiasTranscurridos()}");
+            Console.WriteLine($"Estado: {prestamo.Estado}");
+        }
+
+        static void RegisterReturn()
+        {
+            Console.WriteLine("--- Registrar devolución ---");
+            int id = ReadInt("Ingrese ID del préstamo: ");
+
+            var prestamo = _prestamoService.BuscarPorId(id);
+            if (prestamo == null)
+            {
+                Console.WriteLine("[INFO] Préstamo no encontrado.");
+                return;
+            }
+
+            if (prestamo.Estado != EstadoPrestamo.Activo)
+            {
+                Console.WriteLine("[INFO] El préstamo no está activo. Estado actual: " + prestamo.Estado);
+                return;
+            }
+
+            bool confirm = ConfirmYesNo("¿Confirmar devolución? (S/N): ");
+            if (!confirm)
+            {
+                Console.WriteLine("[INFO] Operación cancelada.");
+                return;
+            }
+
+            // Marcar devuelto
+            prestamo.Estado = EstadoPrestamo.Devuelto;
+
+            // FechaDevolucion se usa como fecha estimada mientras está activo.
+            // Al devolver, la sobreescribimos con la fecha real de devolución.
+            prestamo.FechaDevolucion = DateTime.Now;
+
+            // Marcar libro disponible
+            if (prestamo.Libro != null)
+                prestamo.Libro.Disponible = true;
+
+            Console.WriteLine("[OK] Devolución registrada correctamente.");
+            Console.WriteLine(prestamo.DetalleCompleto());
+        }
+
+        static void DeleteLoan()
+        {
+            Console.WriteLine("--- Eliminar préstamo ---");
+            int id = ReadInt("Ingrese ID del préstamo a eliminar: ");
+
+            var prestamo = _prestamoService.BuscarPorId(id);
+            if (prestamo == null)
+            {
+                Console.WriteLine("[INFO] Préstamo no encontrado.");
+                return;
+            }
+
+            // Regla sugerida: no borrar préstamos activos (para no perder trazabilidad)
+            if (prestamo.Estado == EstadoPrestamo.Activo)
+            {
+                Console.WriteLine("[ERROR] No se puede eliminar un préstamo activo. Registre devolución primero.");
+                return;
+            }
+
+            bool confirm = ConfirmYesNo($"¿Seguro que desea eliminar el préstamo #{prestamo.Id}? (S/N): ");
+            if (!confirm)
+            {
+                Console.WriteLine("[INFO] Operación cancelada.");
+                return;
+            }
+
+            _prestamoService.EliminarPrestamo(prestamo);
+            Console.WriteLine("[OK] Préstamo eliminado correctamente.");
         }
 
         // ===================== BÚSQUEDAS/REPORTES (commit 5 lo vuelve real) =====================
