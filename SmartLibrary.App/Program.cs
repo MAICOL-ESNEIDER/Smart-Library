@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SmartLibrary.App.Models;
 using SmartLibrary.App.Services;
@@ -7,10 +8,15 @@ namespace SmartLibrary.App
 {
     class Program
     {
-        // Services (capa de negocio en memoria)
-        private static readonly LibroService _libroService = new LibroService();
-        private static readonly UsuarioService _usuarioService = new UsuarioService();
-        private static readonly PrestamoService _prestamoService = new PrestamoService();
+        // Services en memoria (no readonly para poder reiniciar/cargar)
+        private static LibroService _libroService = new LibroService();
+        private static UsuarioService _usuarioService = new UsuarioService();
+        private static PrestamoService _prestamoService = new PrestamoService();
+
+        // "Persistencia" simulada (snapshots en memoria)
+        private static List<Libro>? _savedLibros;
+        private static List<Usuario>? _savedUsuarios;
+        private static List<Prestamo>? _savedPrestamos;
 
         static void Main(string[] args)
         {
@@ -22,7 +28,6 @@ namespace SmartLibrary.App
                 return;
             }
 
-            // Seed inicial (datos de prueba para que el menú tenga con qué trabajar)
             SeedDataIfEmpty();
 
             bool running = true;
@@ -33,29 +38,12 @@ namespace SmartLibrary.App
 
                 switch (option)
                 {
-                    case 1:
-                        ShowBooksMenu();
-                        break;
-
-                    case 2:
-                        ShowUsersMenu();
-                        break;
-
-                    case 3:
-                        ShowLoansMenu(); // COMMIT 4: ya es CRUD real
-                        break;
-
-                    case 4:
-                        ShowSearchReportsMenu(); // commit 5
-                        break;
-
-                    case 5:
-                        ShowPersistenceMenu(); // commit 5
-                        break;
-
-                    case 6:
-                        running = !ConfirmExitAndSave();
-                        break;
+                    case 1: ShowBooksMenu(); break;
+                    case 2: ShowUsersMenu(); break;
+                    case 3: ShowLoansMenu(); break;
+                    case 4: ShowSearchReportsMenu(); break;          // COMMIT 5 REAL
+                    case 5: ShowPersistenceMenu(); break;            // COMMIT 5 REAL
+                    case 6: running = !ConfirmExitAndSave(); break;
                 }
 
                 Console.WriteLine();
@@ -65,31 +53,27 @@ namespace SmartLibrary.App
         // ===================== SEED =====================
         static void SeedDataIfEmpty()
         {
-            // Si ya hay datos, no volvemos a sembrar
             if (_libroService.TotalLibros() > 0 || _usuarioService.TotalUsuarios() > 0 || _prestamoService.TotalPrestamos() > 0)
                 return;
 
-            // 2 libros
             var libro1 = new Libro(1, "Cien años de soledad", "Gabriel García Márquez", 1967, "Novela");
             var libro2 = new Libro(2, "El coronel no tiene quien le escriba", "Gabriel García Márquez", 1961, "Novela");
 
             _libroService.AgregarLibro(libro1);
             _libroService.AgregarLibro(libro2);
 
-            // 2 usuarios
             var usuario1 = new Usuario(1, "Maicol Posada", "maicol@email.com");
             var usuario2 = new Usuario(2, "Ana Pérez", "ana@email.com");
 
             _usuarioService.AgregarUsuario(usuario1);
             _usuarioService.AgregarUsuario(usuario2);
 
-            // 1 préstamo (activo) -> libro1 queda no disponible
+            // 1 préstamo seed activo: libro1 no disponible
             libro1.Disponible = false;
 
-            // NOTA: Tu modelo no tiene FechaLimite, así que usamos FechaDevolucion como "fecha estimada/límite" mientras está Activo.
+            // NOTA: tu modelo no tiene FechaLimite => usamos FechaDevolucion como "fecha estimada/límite" mientras está activo
             var prestamo1 = new Prestamo(1, libro1, usuario1, DateTime.Now.AddDays(-3), DateTime.Now.AddDays(4));
             prestamo1.Estado = EstadoPrestamo.Activo;
-
             _prestamoService.AgregarPrestamo(prestamo1);
         }
 
@@ -186,24 +170,12 @@ namespace SmartLibrary.App
 
                 switch (option)
                 {
-                    case 1:
-                        RegisterBook();
-                        break;
-                    case 2:
-                        ShowListBooksMenu();
-                        break;
-                    case 3:
-                        ViewBookDetail();
-                        break;
-                    case 4:
-                        UpdateBookMenu();
-                        break;
-                    case 5:
-                        DeleteBook();
-                        break;
-                    case 0:
-                        back = true;
-                        break;
+                    case 1: RegisterBook(); break;
+                    case 2: ShowListBooksMenu(); break;
+                    case 3: ViewBookDetail(); break;
+                    case 4: UpdateBookMenu(); break;
+                    case 5: DeleteBook(); break;
+                    case 0: back = true; break;
                 }
 
                 Console.WriteLine();
@@ -215,8 +187,6 @@ namespace SmartLibrary.App
             Console.WriteLine("--- Registrar libro ---");
 
             int id = ReadInt("ID del libro: ");
-
-            // Validar duplicado
             var existing = _libroService.BuscarPorId(id);
             if (existing != null)
             {
@@ -251,18 +221,10 @@ namespace SmartLibrary.App
 
                 switch (option)
                 {
-                    case 1:
-                        ListBooksAll();
-                        break;
-                    case 2:
-                        ListBooksAvailable();
-                        break;
-                    case 3:
-                        ListBooksBorrowed();
-                        break;
-                    case 0:
-                        back = true;
-                        break;
+                    case 1: ListBooksAll(); break;
+                    case 2: ListBooksAvailable(); break;
+                    case 3: ListBooksBorrowed(); break;
+                    case 0: back = true; break;
                 }
 
                 Console.WriteLine();
@@ -272,8 +234,8 @@ namespace SmartLibrary.App
         static void ListBooksAll()
         {
             Console.WriteLine("--- TODOS LOS LIBROS ---");
-
             var all = _libroService.ObtenerTodos();
+
             if (all.Count == 0)
             {
                 Console.WriteLine("[INFO] No hay libros registrados.");
@@ -287,9 +249,7 @@ namespace SmartLibrary.App
         static void ListBooksAvailable()
         {
             Console.WriteLine("--- LIBROS DISPONIBLES ---");
-
-            var all = _libroService.ObtenerTodos();
-            var available = all.Where(l => l.Disponible).ToList();
+            var available = _libroService.ObtenerTodos().Where(l => l.Disponible).ToList();
 
             if (available.Count == 0)
             {
@@ -304,9 +264,7 @@ namespace SmartLibrary.App
         static void ListBooksBorrowed()
         {
             Console.WriteLine("--- LIBROS PRESTADOS ---");
-
-            var all = _libroService.ObtenerTodos();
-            var borrowed = all.Where(l => !l.Disponible).ToList();
+            var borrowed = _libroService.ObtenerTodos().Where(l => !l.Disponible).ToList();
 
             if (borrowed.Count == 0)
             {
@@ -359,22 +317,18 @@ namespace SmartLibrary.App
                 switch (option)
                 {
                     case 1:
-                        string nuevoTitulo = ReadText("Nuevo título: ");
-                        libro.Titulo = nuevoTitulo;
+                        libro.Titulo = ReadText("Nuevo título: ");
                         Console.WriteLine("[OK] Título actualizado.");
                         break;
 
                     case 2:
-                        string nuevoAutor = ReadText("Nuevo autor: ");
-                        libro.Autor = nuevoAutor;
+                        libro.Autor = ReadText("Nuevo autor: ");
                         Console.WriteLine("[OK] Autor actualizado.");
                         break;
 
                     case 3:
-                        int nuevoAnio = ReadInt("Nuevo año: ");
-                        string nuevaCategoria = ReadText("Nueva categoría: ");
-                        libro.Anio = nuevoAnio;
-                        libro.Categoria = nuevaCategoria;
+                        libro.Anio = ReadInt("Nuevo año: ");
+                        libro.Categoria = ReadText("Nueva categoría: ");
                         Console.WriteLine("[OK] Año y categoría actualizados.");
                         break;
 
@@ -402,7 +356,6 @@ namespace SmartLibrary.App
                 return;
             }
 
-            // Regla: NO permitir eliminar si está prestado (préstamo activo)
             bool enPrestamoActivo = _prestamoService.ObtenerTodos()
                 .Any(p => p.Estado == EstadoPrestamo.Activo && p.Libro != null && p.Libro.Id == id);
 
@@ -441,24 +394,12 @@ namespace SmartLibrary.App
 
                 switch (option)
                 {
-                    case 1:
-                        RegisterUser();
-                        break;
-                    case 2:
-                        ListUsers();
-                        break;
-                    case 3:
-                        ViewUserDetail();
-                        break;
-                    case 4:
-                        UpdateUserMenu();
-                        break;
-                    case 5:
-                        DeleteUser();
-                        break;
-                    case 0:
-                        back = true;
-                        break;
+                    case 1: RegisterUser(); break;
+                    case 2: ListUsers(); break;
+                    case 3: ViewUserDetail(); break;
+                    case 4: UpdateUserMenu(); break;
+                    case 5: DeleteUser(); break;
+                    case 0: back = true; break;
                 }
 
                 Console.WriteLine();
@@ -470,7 +411,6 @@ namespace SmartLibrary.App
             Console.WriteLine("--- Registrar usuario ---");
 
             int id = ReadInt("ID del usuario: ");
-
             var existing = _usuarioService.BuscarPorId(id);
             if (existing != null)
             {
@@ -491,8 +431,8 @@ namespace SmartLibrary.App
         static void ListUsers()
         {
             Console.WriteLine("--- LISTA DE USUARIOS ---");
-
             var all = _usuarioService.ObtenerTodos();
+
             if (all.Count == 0)
             {
                 Console.WriteLine("[INFO] No hay usuarios registrados.");
@@ -544,22 +484,18 @@ namespace SmartLibrary.App
                 switch (option)
                 {
                     case 1:
-                        string nuevoNombre = ReadText("Nuevo nombre: ");
-                        usuario.Nombre = nuevoNombre;
+                        usuario.Nombre = ReadText("Nuevo nombre: ");
                         Console.WriteLine("[OK] Nombre actualizado.");
                         break;
 
                     case 2:
-                        string nuevoContacto = ReadText("Nuevo contacto: ");
-                        usuario.Contacto = nuevoContacto;
+                        usuario.Contacto = ReadText("Nuevo contacto: ");
                         Console.WriteLine("[OK] Contacto actualizado.");
                         break;
 
                     case 3:
                         usuario.Activo = !usuario.Activo;
-                        Console.WriteLine(usuario.Activo
-                            ? "[OK] Usuario activado."
-                            : "[OK] Usuario desactivado.");
+                        Console.WriteLine(usuario.Activo ? "[OK] Usuario activado." : "[OK] Usuario desactivado.");
                         break;
 
                     case 0:
@@ -586,7 +522,6 @@ namespace SmartLibrary.App
                 return;
             }
 
-            // Regla: NO permitir eliminar si tiene préstamos activos
             bool tienePrestamoActivo = _prestamoService.ObtenerTodos()
                 .Any(p => p.Estado == EstadoPrestamo.Activo && p.Usuario != null && p.Usuario.Id == id);
 
@@ -611,10 +546,8 @@ namespace SmartLibrary.App
         static void ShowLoansMenu()
         {
             bool back = false;
-
             while (!back)
             {
-                // Antes de mostrar listados, actualizamos vencidos en base a "fecha estimada/límite"
                 UpdateOverdueStatuses();
 
                 Console.WriteLine("=== MENÚ PRÉSTAMOS ===");
@@ -629,40 +562,25 @@ namespace SmartLibrary.App
 
                 switch (option)
                 {
-                    case 1:
-                        CreateLoan();
-                        break;
-                    case 2:
-                        ShowListLoansMenu();
-                        break;
-                    case 3:
-                        ViewLoanDetail();
-                        break;
-                    case 4:
-                        RegisterReturn();
-                        break;
-                    case 5:
-                        DeleteLoan();
-                        break;
-                    case 0:
-                        back = true;
-                        break;
+                    case 1: CreateLoan(); break;
+                    case 2: ShowListLoansMenu(); break;
+                    case 3: ViewLoanDetail(); break;
+                    case 4: RegisterReturn(); break;
+                    case 5: DeleteLoan(); break;
+                    case 0: back = true; break;
                 }
 
                 Console.WriteLine();
             }
         }
 
-        // Marca préstamos vencidos si siguen Activo y la fecha estimada (FechaDevolucion) ya pasó
         static void UpdateOverdueStatuses()
         {
             var all = _prestamoService.ObtenerTodos();
             foreach (var p in all)
             {
                 if (p.Estado == EstadoPrestamo.Activo && p.FechaDevolucion.HasValue && p.FechaDevolucion.Value < DateTime.Now)
-                {
                     p.Estado = EstadoPrestamo.Vencido;
-                }
             }
         }
 
@@ -672,52 +590,26 @@ namespace SmartLibrary.App
 
             int userId = ReadInt("ID del usuario: ");
             var usuario = _usuarioService.BuscarPorId(userId);
-            if (usuario == null)
-            {
-                Console.WriteLine("[ERROR] Usuario no existe.");
-                return;
-            }
-            if (!usuario.Activo)
-            {
-                Console.WriteLine("[ERROR] Usuario inactivo. No puede crear préstamos.");
-                return;
-            }
+            if (usuario == null) { Console.WriteLine("[ERROR] Usuario no existe."); return; }
+            if (!usuario.Activo) { Console.WriteLine("[ERROR] Usuario inactivo. No puede crear préstamos."); return; }
 
             int bookId = ReadInt("ID del libro: ");
             var libro = _libroService.BuscarPorId(bookId);
-            if (libro == null)
-            {
-                Console.WriteLine("[ERROR] Libro no existe.");
-                return;
-            }
-            if (!libro.Disponible)
-            {
-                Console.WriteLine("[ERROR] Libro no disponible. Ya está prestado.");
-                return;
-            }
+            if (libro == null) { Console.WriteLine("[ERROR] Libro no existe."); return; }
+            if (!libro.Disponible) { Console.WriteLine("[ERROR] Libro no disponible. Ya está prestado."); return; }
 
             int dias = ReadInt("Días de préstamo (ej: 7): ");
-            if (dias <= 0)
-            {
-                Console.WriteLine("[ERROR] Los días deben ser mayores a 0.");
-                return;
-            }
+            if (dias <= 0) { Console.WriteLine("[ERROR] Los días deben ser mayores a 0."); return; }
 
-            // ID automático
-            int nextId = _prestamoService.ObtenerTodos().Count == 0
-                ? 1
-                : _prestamoService.ObtenerTodos().Max(p => p.Id) + 1;
+            int nextId = _prestamoService.ObtenerTodos().Count == 0 ? 1 : _prestamoService.ObtenerTodos().Max(p => p.Id) + 1;
 
             var fechaPrestamo = DateTime.Now;
-            var fechaEstimadaDevolucion = DateTime.Now.AddDays(dias);
+            var fechaEstimada = DateTime.Now.AddDays(dias);
 
-            // Usamos constructor con "fechaDevolucion" como fecha estimada/límite
-            var prestamo = new Prestamo(nextId, libro, usuario, fechaPrestamo, fechaEstimadaDevolucion);
+            var prestamo = new Prestamo(nextId, libro, usuario, fechaPrestamo, fechaEstimada);
             prestamo.Estado = EstadoPrestamo.Activo;
 
-            // Marcar libro como no disponible
             libro.Disponible = false;
-
             _prestamoService.AgregarPrestamo(prestamo);
 
             Console.WriteLine("[OK] Préstamo creado correctamente.");
@@ -741,18 +633,10 @@ namespace SmartLibrary.App
 
                 switch (option)
                 {
-                    case 1:
-                        ListLoansAll();
-                        break;
-                    case 2:
-                        ListLoansActive();
-                        break;
-                    case 3:
-                        ListLoansClosed();
-                        break;
-                    case 0:
-                        back = true;
-                        break;
+                    case 1: ListLoansAll(); break;
+                    case 2: ListLoansActive(); break;
+                    case 3: ListLoansClosed(); break;
+                    case 0: back = true; break;
                 }
 
                 Console.WriteLine();
@@ -762,48 +646,25 @@ namespace SmartLibrary.App
         static void ListLoansAll()
         {
             Console.WriteLine("--- TODOS LOS PRÉSTAMOS ---");
-
             var all = _prestamoService.ObtenerTodos();
-            if (all.Count == 0)
-            {
-                Console.WriteLine("[INFO] No hay préstamos registrados.");
-                return;
-            }
-
-            foreach (var p in all)
-                Console.WriteLine(p.DetalleCompleto());
+            if (all.Count == 0) { Console.WriteLine("[INFO] No hay préstamos registrados."); return; }
+            foreach (var p in all) Console.WriteLine(p.DetalleCompleto());
         }
 
         static void ListLoansActive()
         {
             Console.WriteLine("--- PRÉSTAMOS ACTIVOS ---");
-
             var active = _prestamoService.BuscarPorEstado(EstadoPrestamo.Activo);
-            if (active.Count == 0)
-            {
-                Console.WriteLine("[INFO] No hay préstamos activos.");
-                return;
-            }
-
-            foreach (var p in active)
-                Console.WriteLine(p.DetalleCompleto());
+            if (active.Count == 0) { Console.WriteLine("[INFO] No hay préstamos activos."); return; }
+            foreach (var p in active) Console.WriteLine(p.DetalleCompleto());
         }
 
         static void ListLoansClosed()
         {
             Console.WriteLine("--- PRÉSTAMOS CERRADOS (DEVUELTO / VENCIDO) ---");
-
-            var all = _prestamoService.ObtenerTodos();
-            var closed = all.Where(p => p.Estado != EstadoPrestamo.Activo).ToList();
-
-            if (closed.Count == 0)
-            {
-                Console.WriteLine("[INFO] No hay préstamos cerrados.");
-                return;
-            }
-
-            foreach (var p in closed)
-                Console.WriteLine(p.DetalleCompleto());
+            var closed = _prestamoService.ObtenerTodos().Where(p => p.Estado != EstadoPrestamo.Activo).ToList();
+            if (closed.Count == 0) { Console.WriteLine("[INFO] No hay préstamos cerrados."); return; }
+            foreach (var p in closed) Console.WriteLine(p.DetalleCompleto());
         }
 
         static void ViewLoanDetail()
@@ -812,11 +673,7 @@ namespace SmartLibrary.App
             int id = ReadInt("Ingrese ID del préstamo: ");
 
             var prestamo = _prestamoService.BuscarPorId(id);
-            if (prestamo == null)
-            {
-                Console.WriteLine("[INFO] Préstamo no encontrado.");
-                return;
-            }
+            if (prestamo == null) { Console.WriteLine("[INFO] Préstamo no encontrado."); return; }
 
             Console.WriteLine(prestamo.DetalleCompleto());
             Console.WriteLine($"Días transcurridos: {prestamo.DiasTranscurridos()}");
@@ -829,11 +686,7 @@ namespace SmartLibrary.App
             int id = ReadInt("Ingrese ID del préstamo: ");
 
             var prestamo = _prestamoService.BuscarPorId(id);
-            if (prestamo == null)
-            {
-                Console.WriteLine("[INFO] Préstamo no encontrado.");
-                return;
-            }
+            if (prestamo == null) { Console.WriteLine("[INFO] Préstamo no encontrado."); return; }
 
             if (prestamo.Estado != EstadoPrestamo.Activo)
             {
@@ -842,20 +695,11 @@ namespace SmartLibrary.App
             }
 
             bool confirm = ConfirmYesNo("¿Confirmar devolución? (S/N): ");
-            if (!confirm)
-            {
-                Console.WriteLine("[INFO] Operación cancelada.");
-                return;
-            }
+            if (!confirm) { Console.WriteLine("[INFO] Operación cancelada."); return; }
 
-            // Marcar devuelto
             prestamo.Estado = EstadoPrestamo.Devuelto;
-
-            // FechaDevolucion se usa como fecha estimada mientras está activo.
-            // Al devolver, la sobreescribimos con la fecha real de devolución.
             prestamo.FechaDevolucion = DateTime.Now;
 
-            // Marcar libro disponible
             if (prestamo.Libro != null)
                 prestamo.Libro.Disponible = true;
 
@@ -869,13 +713,8 @@ namespace SmartLibrary.App
             int id = ReadInt("Ingrese ID del préstamo a eliminar: ");
 
             var prestamo = _prestamoService.BuscarPorId(id);
-            if (prestamo == null)
-            {
-                Console.WriteLine("[INFO] Préstamo no encontrado.");
-                return;
-            }
+            if (prestamo == null) { Console.WriteLine("[INFO] Préstamo no encontrado."); return; }
 
-            // Regla sugerida: no borrar préstamos activos (para no perder trazabilidad)
             if (prestamo.Estado == EstadoPrestamo.Activo)
             {
                 Console.WriteLine("[ERROR] No se puede eliminar un préstamo activo. Registre devolución primero.");
@@ -883,26 +722,295 @@ namespace SmartLibrary.App
             }
 
             bool confirm = ConfirmYesNo($"¿Seguro que desea eliminar el préstamo #{prestamo.Id}? (S/N): ");
-            if (!confirm)
-            {
-                Console.WriteLine("[INFO] Operación cancelada.");
-                return;
-            }
+            if (!confirm) { Console.WriteLine("[INFO] Operación cancelada."); return; }
 
             _prestamoService.EliminarPrestamo(prestamo);
             Console.WriteLine("[OK] Préstamo eliminado correctamente.");
         }
 
-        // ===================== BÚSQUEDAS/REPORTES (commit 5 lo vuelve real) =====================
+        // ===================== BÚSQUEDAS Y REPORTES (CRUD REAL - COMMIT 5) =====================
         static void ShowSearchReportsMenu()
         {
-            Console.WriteLine("[PENDIENTE] Búsquedas y reportes se implementan en commit 5.");
+            bool back = false;
+            while (!back)
+            {
+                UpdateOverdueStatuses();
+
+                Console.WriteLine("=== MENÚ BÚSQUEDAS Y REPORTES ===");
+                Console.WriteLine("1. Buscar libro (id/título/autor/categoría)");
+                Console.WriteLine("2. Buscar usuario (id/nombre)");
+                Console.WriteLine("3. Reportes");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1: SearchBookMenu(); break;
+                    case 2: SearchUserMenu(); break;
+                    case 3: ReportsMenu(); break;
+                    case 0: back = true; break;
+                }
+
+                Console.WriteLine();
+            }
         }
 
-        // ===================== PERSISTENCIA (commit 5 lo vuelve real) =====================
+        static void SearchBookMenu()
+        {
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("--- Buscar libro ---");
+                Console.WriteLine("1. Por ID");
+                Console.WriteLine("2. Por título");
+                Console.WriteLine("3. Por autor");
+                Console.WriteLine("4. Por categoría");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 4);
+
+                switch (option)
+                {
+                    case 1:
+                        int id = ReadInt("ID: ");
+                        var b = _libroService.BuscarPorId(id);
+                        Console.WriteLine(b != null ? b.DetalleCompleto() : "[INFO] No encontrado.");
+                        break;
+
+                    case 2:
+                        string t = ReadText("Texto en título: ");
+                        var byTitle = _libroService.BuscarPorTitulo(t);
+                        if (byTitle.Count == 0) Console.WriteLine("[INFO] Sin resultados.");
+                        else byTitle.ForEach(x => Console.WriteLine(x.DetalleCompleto()));
+                        break;
+
+                    case 3:
+                        string a = ReadText("Texto en autor: ");
+                        var byAuthor = _libroService.BuscarPorAutor(a);
+                        if (byAuthor.Count == 0) Console.WriteLine("[INFO] Sin resultados.");
+                        else byAuthor.ForEach(x => Console.WriteLine(x.DetalleCompleto()));
+                        break;
+
+                    case 4:
+                        string c = ReadText("Categoría: ");
+                        var byCat = _libroService.ObtenerTodos()
+                            .Where(x => x.Categoria != null && x.Categoria.Contains(c, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+
+                        if (byCat.Count == 0) Console.WriteLine("[INFO] Sin resultados.");
+                        else byCat.ForEach(x => Console.WriteLine(x.DetalleCompleto()));
+                        break;
+
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void SearchUserMenu()
+        {
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("--- Buscar usuario ---");
+                Console.WriteLine("1. Por ID");
+                Console.WriteLine("2. Por nombre");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 2);
+
+                switch (option)
+                {
+                    case 1:
+                        int id = ReadInt("ID: ");
+                        var u = _usuarioService.BuscarPorId(id);
+                        Console.WriteLine(u != null ? u.DetalleCompleto() : "[INFO] No encontrado.");
+                        break;
+
+                    case 2:
+                        string n = ReadText("Texto en nombre: ");
+                        var byName = _usuarioService.BuscarPorNombre(n);
+                        if (byName.Count == 0) Console.WriteLine("[INFO] Sin resultados.");
+                        else byName.ForEach(x => Console.WriteLine(x.DetalleCompleto()));
+                        break;
+
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void ReportsMenu()
+        {
+            bool back = false;
+            while (!back)
+            {
+                UpdateOverdueStatuses();
+
+                Console.WriteLine("=== REPORTES ===");
+                Console.WriteLine("1. Reporte por usuario");
+                Console.WriteLine("2. Reporte por libro");
+                Console.WriteLine("3. Reporte vencidos");
+                Console.WriteLine("4. Resumen (KPIs)");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 4);
+
+                switch (option)
+                {
+                    case 1: ReportByUser(); break;
+                    case 2: ReportByBook(); break;
+                    case 3: ReportOverdue(); break;
+                    case 4: ReportSummary(); break;
+                    case 0: back = true; break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void ReportByUser()
+        {
+            Console.WriteLine("--- Reporte por usuario ---");
+            int id = ReadInt("ID usuario: ");
+
+            var user = _usuarioService.BuscarPorId(id);
+            if (user == null) { Console.WriteLine("[INFO] Usuario no encontrado."); return; }
+
+            var loans = _prestamoService.ObtenerTodos()
+                .Where(p => p.Usuario != null && p.Usuario.Id == id)
+                .ToList();
+
+            Console.WriteLine(user.DetalleCompleto());
+            if (loans.Count == 0) { Console.WriteLine("[INFO] No tiene préstamos."); return; }
+
+            loans.ForEach(p => Console.WriteLine(p.DetalleCompleto()));
+        }
+
+        static void ReportByBook()
+        {
+            Console.WriteLine("--- Reporte por libro ---");
+            int id = ReadInt("ID libro: ");
+
+            var book = _libroService.BuscarPorId(id);
+            if (book == null) { Console.WriteLine("[INFO] Libro no encontrado."); return; }
+
+            var loans = _prestamoService.ObtenerTodos()
+                .Where(p => p.Libro != null && p.Libro.Id == id)
+                .ToList();
+
+            Console.WriteLine(book.DetalleCompleto());
+            if (loans.Count == 0) { Console.WriteLine("[INFO] No tiene préstamos."); return; }
+
+            loans.ForEach(p => Console.WriteLine(p.DetalleCompleto()));
+        }
+
+        static void ReportOverdue()
+        {
+            Console.WriteLine("--- Reporte préstamos vencidos ---");
+            var overdue = _prestamoService.BuscarPorEstado(EstadoPrestamo.Vencido);
+
+            if (overdue.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay préstamos vencidos.");
+                return;
+            }
+
+            overdue.ForEach(p => Console.WriteLine(p.DetalleCompleto()));
+        }
+
+        static void ReportSummary()
+        {
+            Console.WriteLine("--- Resumen (KPIs) ---");
+
+            Console.WriteLine($"Libros: Total={_libroService.TotalLibros()}, Disponibles={_libroService.LibrosDisponibles()}, Prestados={_libroService.LibrosPrestados()}");
+            Console.WriteLine($"Usuarios: Total={_usuarioService.TotalUsuarios()}, Activos={_usuarioService.UsuariosActivos()}, Inactivos={_usuarioService.UsuariosInactivos()}");
+            Console.WriteLine($"Préstamos: Total={_prestamoService.TotalPrestamos()}, Activos={_prestamoService.PrestamosActivos()}, Devueltos={_prestamoService.PrestamosDevueltos()}, Vencidos={_prestamoService.PrestamosVencidos()}");
+            Console.WriteLine($"Promedio días préstamo: {_prestamoService.PromedioDiasPrestamo():0.00}");
+        }
+
+        // ===================== PERSISTENCIA (SIMULADA) - COMMIT 5 =====================
         static void ShowPersistenceMenu()
         {
-            Console.WriteLine("[PENDIENTE] Guardar/Cargar/Reset se implementa en commit 5 (simulación en memoria).");
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("=== MENÚ PERSISTENCIA ===");
+                Console.WriteLine("1. Guardar datos (simulación)");
+                Console.WriteLine("2. Cargar datos (simulación)");
+                Console.WriteLine("3. Reiniciar datos (S/N)");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1: SaveData(); break;
+                    case 2: LoadData(); break;
+                    case 3: ResetData(); break;
+                    case 0: back = true; break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void SaveData()
+        {
+            // Snapshot (en memoria)
+            _savedLibros = new List<Libro>(_libroService.ObtenerTodos());
+            _savedUsuarios = new List<Usuario>(_usuarioService.ObtenerTodos());
+            _savedPrestamos = new List<Prestamo>(_prestamoService.ObtenerTodos());
+
+            Console.WriteLine("[INFO] Guardando datos... (simulación en memoria)");
+            Console.WriteLine($"[OK] Guardado: Libros={_savedLibros.Count}, Usuarios={_savedUsuarios.Count}, Préstamos={_savedPrestamos.Count}");
+        }
+
+        static void LoadData()
+        {
+            if (_savedLibros == null || _savedUsuarios == null || _savedPrestamos == null)
+            {
+                Console.WriteLine("[INFO] No hay datos guardados para cargar (simulación).");
+                return;
+            }
+
+            Console.WriteLine("[INFO] Cargando datos... (simulación en memoria)");
+
+            // Re-inicializar servicios (equivale a limpiar)
+            _libroService = new LibroService();
+            _usuarioService = new UsuarioService();
+            _prestamoService = new PrestamoService();
+
+            // Restaurar (mismas referencias guardadas)
+            foreach (var b in _savedLibros) _libroService.AgregarLibro(b);
+            foreach (var u in _savedUsuarios) _usuarioService.AgregarUsuario(u);
+            foreach (var p in _savedPrestamos) _prestamoService.AgregarPrestamo(p);
+
+            UpdateOverdueStatuses();
+            Console.WriteLine("[OK] Datos cargados correctamente (simulación).");
+        }
+
+        static void ResetData()
+        {
+            bool confirm = ConfirmYesNo("¿Seguro que desea REINICIAR los datos? (S/N): ");
+            if (!confirm)
+            {
+                Console.WriteLine("[INFO] Reinicio cancelado.");
+                return;
+            }
+
+            _libroService = new LibroService();
+            _usuarioService = new UsuarioService();
+            _prestamoService = new PrestamoService();
+
+            Console.WriteLine("[OK] Datos reiniciados (simulación).");
         }
 
         // ===================== SALIDA =====================
@@ -912,8 +1020,7 @@ namespace SmartLibrary.App
 
             if (save)
             {
-                Console.WriteLine("[INFO] Guardando datos... (simulación)");
-                Console.WriteLine("[OK] Datos guardados correctamente.");
+                SaveData();
             }
             else
             {
