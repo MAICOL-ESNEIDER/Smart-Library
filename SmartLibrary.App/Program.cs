@@ -423,7 +423,7 @@ namespace SmartLibrary.App
             Console.WriteLine("[OK] Libro eliminado correctamente.");
         }
 
-        // ===================== USUARIOS (stub, commit 3 lo vuelve CRUD real) =====================
+        // ===================== USUARIOS (CRUD REAL - COMMIT 3) =====================
         static void ShowUsersMenu()
         {
             bool back = false;
@@ -442,19 +442,19 @@ namespace SmartLibrary.App
                 switch (option)
                 {
                     case 1:
-                        Console.WriteLine("[PENDIENTE] Registrar usuario (CRUD real se agrega en commit 3).");
+                        RegisterUser();
                         break;
                     case 2:
-                        Console.WriteLine("[PENDIENTE] Listar usuarios (CRUD real se agrega en commit 3).");
+                        ListUsers();
                         break;
                     case 3:
-                        Console.WriteLine("[PENDIENTE] Ver detalle (CRUD real se agrega en commit 3).");
+                        ViewUserDetail();
                         break;
                     case 4:
-                        Console.WriteLine("[PENDIENTE] Actualizar usuario (CRUD real se agrega en commit 3).");
+                        UpdateUserMenu();
                         break;
                     case 5:
-                        Console.WriteLine("[PENDIENTE] Eliminar usuario (reglas se agregan en commit 3).");
+                        DeleteUser();
                         break;
                     case 0:
                         back = true;
@@ -463,6 +463,148 @@ namespace SmartLibrary.App
 
                 Console.WriteLine();
             }
+        }
+
+        static void RegisterUser()
+        {
+            Console.WriteLine("--- Registrar usuario ---");
+
+            int id = ReadInt("ID del usuario: ");
+
+            var existing = _usuarioService.BuscarPorId(id);
+            if (existing != null)
+            {
+                Console.WriteLine("[ERROR] Ya existe un usuario con ese ID.");
+                return;
+            }
+
+            string nombre = ReadText("Nombre: ");
+            string contacto = ReadText("Contacto (email/teléfono): ");
+
+            var usuario = new Usuario(id, nombre, contacto);
+            _usuarioService.AgregarUsuario(usuario);
+
+            Console.WriteLine("[OK] Usuario registrado correctamente.");
+            Console.WriteLine(usuario.DetalleCompleto());
+        }
+
+        static void ListUsers()
+        {
+            Console.WriteLine("--- LISTA DE USUARIOS ---");
+
+            var all = _usuarioService.ObtenerTodos();
+            if (all.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay usuarios registrados.");
+                return;
+            }
+
+            foreach (var u in all)
+                Console.WriteLine(u.DetalleCompleto());
+        }
+
+        static void ViewUserDetail()
+        {
+            Console.WriteLine("--- Ver detalle de usuario ---");
+            int id = ReadInt("Ingrese ID del usuario: ");
+
+            var usuario = _usuarioService.BuscarPorId(id);
+            if (usuario == null)
+            {
+                Console.WriteLine("[INFO] Usuario no encontrado.");
+                return;
+            }
+
+            Console.WriteLine(usuario.DetalleCompleto());
+        }
+
+        static void UpdateUserMenu()
+        {
+            Console.WriteLine("--- Actualizar usuario ---");
+            int id = ReadInt("Ingrese ID del usuario a actualizar: ");
+
+            var usuario = _usuarioService.BuscarPorId(id);
+            if (usuario == null)
+            {
+                Console.WriteLine("[INFO] Usuario no encontrado.");
+                return;
+            }
+
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("=== ACTUALIZAR USUARIO ===");
+                Console.WriteLine("1. Editar nombre");
+                Console.WriteLine("2. Editar contacto");
+                Console.WriteLine("3. Activar / desactivar");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1:
+                        string nuevoNombre = ReadText("Nuevo nombre: ");
+                        usuario.Nombre = nuevoNombre;
+                        Console.WriteLine("[OK] Nombre actualizado.");
+                        break;
+
+                    case 2:
+                        string nuevoContacto = ReadText("Nuevo contacto: ");
+                        usuario.Contacto = nuevoContacto;
+                        Console.WriteLine("[OK] Contacto actualizado.");
+                        break;
+
+                    case 3:
+                        usuario.Activo = !usuario.Activo;
+                        Console.WriteLine(usuario.Activo
+                            ? "[OK] Usuario activado."
+                            : "[OK] Usuario desactivado.");
+                        break;
+
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("Usuario actualizado:");
+            Console.WriteLine(usuario.DetalleCompleto());
+        }
+
+        static void DeleteUser()
+        {
+            Console.WriteLine("--- Eliminar usuario ---");
+            int id = ReadInt("Ingrese ID del usuario a eliminar: ");
+
+            var usuario = _usuarioService.BuscarPorId(id);
+            if (usuario == null)
+            {
+                Console.WriteLine("[INFO] Usuario no encontrado.");
+                return;
+            }
+
+            // Regla: NO permitir eliminar si tiene préstamos activos
+            bool tienePrestamoActivo = _prestamoService.ObtenerTodos()
+                .Any(p => p.Estado == EstadoPrestamo.Activo && p.Usuario != null && p.Usuario.Id == id);
+
+            if (tienePrestamoActivo)
+            {
+                Console.WriteLine("[ERROR] No se puede eliminar: el usuario tiene préstamos activos.");
+                return;
+            }
+
+            bool confirm = ConfirmYesNo($"¿Seguro que desea eliminar a '{usuario.Nombre}'? (S/N): ");
+            if (!confirm)
+            {
+                Console.WriteLine("[INFO] Operación cancelada.");
+                return;
+            }
+
+            _usuarioService.EliminarUsuario(usuario);
+            Console.WriteLine("[OK] Usuario eliminado correctamente.");
         }
 
         // ===================== PRÉSTAMOS (stub, commit 4 lo vuelve CRUD real) =====================
