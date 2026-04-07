@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using SmartLibrary.App.Models;
 using SmartLibrary.App.Services;
 
@@ -45,11 +46,11 @@ namespace SmartLibrary.App
                         break;
 
                     case 4:
-                        ShowSearchReportsMenu(); // En commit 5 se vuelve real
+                        ShowSearchReportsMenu(); // commit 5
                         break;
 
                     case 5:
-                        ShowPersistenceMenu(); // En commit 5 se vuelve real
+                        ShowPersistenceMenu(); // commit 5
                         break;
 
                     case 6:
@@ -105,6 +106,7 @@ namespace SmartLibrary.App
             Console.WriteLine("=========================");
         }
 
+        // ===================== HELPERS INPUT =====================
         static int ReadOption(int min, int max)
         {
             while (true)
@@ -166,7 +168,7 @@ namespace SmartLibrary.App
             }
         }
 
-        // ===================== LIBROS (stub, commit 2 lo vuelve CRUD real) =====================
+        // ===================== LIBROS (CRUD REAL - COMMIT 2) =====================
         static void ShowBooksMenu()
         {
             bool back = false;
@@ -185,19 +187,19 @@ namespace SmartLibrary.App
                 switch (option)
                 {
                     case 1:
-                        Console.WriteLine("[PENDIENTE] Registrar libro (CRUD real se agrega en commit 2).");
+                        RegisterBook();
                         break;
                     case 2:
-                        Console.WriteLine("[PENDIENTE] Listar libros (CRUD real se agrega en commit 2).");
+                        ShowListBooksMenu();
                         break;
                     case 3:
-                        Console.WriteLine("[PENDIENTE] Ver detalle (CRUD real se agrega en commit 2).");
+                        ViewBookDetail();
                         break;
                     case 4:
-                        Console.WriteLine("[PENDIENTE] Actualizar libro (CRUD real se agrega en commit 2).");
+                        UpdateBookMenu();
                         break;
                     case 5:
-                        Console.WriteLine("[PENDIENTE] Eliminar libro (reglas se agregan en commit 2).");
+                        DeleteBook();
                         break;
                     case 0:
                         back = true;
@@ -206,6 +208,219 @@ namespace SmartLibrary.App
 
                 Console.WriteLine();
             }
+        }
+
+        static void RegisterBook()
+        {
+            Console.WriteLine("--- Registrar libro ---");
+
+            int id = ReadInt("ID del libro: ");
+
+            // Validar duplicado
+            var existing = _libroService.BuscarPorId(id);
+            if (existing != null)
+            {
+                Console.WriteLine("[ERROR] Ya existe un libro con ese ID.");
+                return;
+            }
+
+            string titulo = ReadText("Título: ");
+            string autor = ReadText("Autor: ");
+            int anio = ReadInt("Año: ");
+            string categoria = ReadText("Categoría: ");
+
+            var libro = new Libro(id, titulo, autor, anio, categoria);
+            _libroService.AgregarLibro(libro);
+
+            Console.WriteLine("[OK] Libro registrado correctamente.");
+            Console.WriteLine(libro.DetalleCompleto());
+        }
+
+        static void ShowListBooksMenu()
+        {
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("=== LISTAR LIBROS ===");
+                Console.WriteLine("1. Listar todos");
+                Console.WriteLine("2. Listar disponibles");
+                Console.WriteLine("3. Listar prestados");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1:
+                        ListBooksAll();
+                        break;
+                    case 2:
+                        ListBooksAvailable();
+                        break;
+                    case 3:
+                        ListBooksBorrowed();
+                        break;
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        static void ListBooksAll()
+        {
+            Console.WriteLine("--- TODOS LOS LIBROS ---");
+
+            var all = _libroService.ObtenerTodos();
+            if (all.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay libros registrados.");
+                return;
+            }
+
+            foreach (var libro in all)
+                Console.WriteLine(libro.DetalleCompleto());
+        }
+
+        static void ListBooksAvailable()
+        {
+            Console.WriteLine("--- LIBROS DISPONIBLES ---");
+
+            var all = _libroService.ObtenerTodos();
+            var available = all.Where(l => l.Disponible).ToList();
+
+            if (available.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay libros disponibles.");
+                return;
+            }
+
+            foreach (var libro in available)
+                Console.WriteLine(libro.DetalleCompleto());
+        }
+
+        static void ListBooksBorrowed()
+        {
+            Console.WriteLine("--- LIBROS PRESTADOS ---");
+
+            var all = _libroService.ObtenerTodos();
+            var borrowed = all.Where(l => !l.Disponible).ToList();
+
+            if (borrowed.Count == 0)
+            {
+                Console.WriteLine("[INFO] No hay libros prestados.");
+                return;
+            }
+
+            foreach (var libro in borrowed)
+                Console.WriteLine(libro.DetalleCompleto());
+        }
+
+        static void ViewBookDetail()
+        {
+            Console.WriteLine("--- Ver detalle de libro ---");
+            int id = ReadInt("Ingrese ID del libro: ");
+
+            var libro = _libroService.BuscarPorId(id);
+            if (libro == null)
+            {
+                Console.WriteLine("[INFO] Libro no encontrado.");
+                return;
+            }
+
+            Console.WriteLine(libro.DetalleCompleto());
+        }
+
+        static void UpdateBookMenu()
+        {
+            Console.WriteLine("--- Actualizar libro ---");
+            int id = ReadInt("Ingrese ID del libro a actualizar: ");
+
+            var libro = _libroService.BuscarPorId(id);
+            if (libro == null)
+            {
+                Console.WriteLine("[INFO] Libro no encontrado.");
+                return;
+            }
+
+            bool back = false;
+            while (!back)
+            {
+                Console.WriteLine("=== ACTUALIZAR LIBRO ===");
+                Console.WriteLine("1. Editar título");
+                Console.WriteLine("2. Editar autor");
+                Console.WriteLine("3. Editar año / categoría");
+                Console.WriteLine("0. Volver");
+
+                int option = ReadOption(0, 3);
+
+                switch (option)
+                {
+                    case 1:
+                        string nuevoTitulo = ReadText("Nuevo título: ");
+                        libro.Titulo = nuevoTitulo;
+                        Console.WriteLine("[OK] Título actualizado.");
+                        break;
+
+                    case 2:
+                        string nuevoAutor = ReadText("Nuevo autor: ");
+                        libro.Autor = nuevoAutor;
+                        Console.WriteLine("[OK] Autor actualizado.");
+                        break;
+
+                    case 3:
+                        int nuevoAnio = ReadInt("Nuevo año: ");
+                        string nuevaCategoria = ReadText("Nueva categoría: ");
+                        libro.Anio = nuevoAnio;
+                        libro.Categoria = nuevaCategoria;
+                        Console.WriteLine("[OK] Año y categoría actualizados.");
+                        break;
+
+                    case 0:
+                        back = true;
+                        break;
+                }
+
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("Libro actualizado:");
+            Console.WriteLine(libro.DetalleCompleto());
+        }
+
+        static void DeleteBook()
+        {
+            Console.WriteLine("--- Eliminar libro ---");
+            int id = ReadInt("Ingrese ID del libro a eliminar: ");
+
+            var libro = _libroService.BuscarPorId(id);
+            if (libro == null)
+            {
+                Console.WriteLine("[INFO] Libro no encontrado.");
+                return;
+            }
+
+            // Regla: NO permitir eliminar si está prestado (préstamo activo)
+            bool enPrestamoActivo = _prestamoService.ObtenerTodos()
+                .Any(p => p.Estado == EstadoPrestamo.Activo && p.Libro != null && p.Libro.Id == id);
+
+            if (enPrestamoActivo || !libro.Disponible)
+            {
+                Console.WriteLine("[ERROR] No se puede eliminar: el libro está prestado (préstamo activo).");
+                return;
+            }
+
+            bool confirm = ConfirmYesNo($"¿Seguro que desea eliminar '{libro.Titulo}'? (S/N): ");
+            if (!confirm)
+            {
+                Console.WriteLine("[INFO] Operación cancelada.");
+                return;
+            }
+
+            _libroService.EliminarLibro(libro);
+            Console.WriteLine("[OK] Libro eliminado correctamente.");
         }
 
         // ===================== USUARIOS (stub, commit 3 lo vuelve CRUD real) =====================
